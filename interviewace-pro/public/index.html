@@ -5,23 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>InterviewAce — AI Mock Interview Coach</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --ink: #0e0e0d;
-    --ink-muted: #6b6b65;
-    --ink-faint: #a8a89f;
-    --paper: #f5f3ee;
-    --paper-warm: #ede9e0;
-    --paper-card: #ffffff;
-    --accent: #2a5c45;
-    --accent-light: #e8f0ec;
-    --accent-mid: #4a8c6a;
-    --warn: #c05c1a;
-    --warn-light: #fdf0e7;
-    --border: rgba(14,14,13,0.1);
-    --border-strong: rgba(14,14,13,0.2);
-    --radius: 10px;
-    --radius-lg: 16px;
+    --ink: #0e0e0d; --ink-muted: #6b6b65; --ink-faint: #a8a89f;
+    --paper: #f5f3ee; --paper-warm: #ede9e0; --paper-card: #ffffff;
+    --accent: #2a5c45; --accent-light: #e8f0ec; --accent-mid: #4a8c6a;
+    --warn: #c05c1a; --warn-light: #fdf0e7;
+    --border: rgba(14,14,13,0.1); --border-strong: rgba(14,14,13,0.2);
+    --radius: 10px; --radius-lg: 16px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -30,8 +22,12 @@
   nav { position: sticky; top: 0; z-index: 100; background: rgba(245,243,238,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 5vw; display: flex; align-items: center; justify-content: space-between; height: 58px; }
   .nav-logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); text-decoration: none; }
   .nav-logo span { color: var(--accent); }
-  .nav-cta { background: var(--ink); color: var(--paper); padding: 7px 18px; border-radius: 30px; font-size: 13px; font-weight: 500; text-decoration: none; transition: opacity .15s; }
-  .nav-cta:hover { opacity: .82; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .nav-user { font-size: 13px; color: var(--ink-muted); }
+  .nav-btn { padding: 7px 18px; border-radius: 30px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; border: none; }
+  .nav-btn-outline { background: transparent; border: 1px solid var(--border-strong); color: var(--ink); }
+  .nav-btn-fill { background: var(--ink); color: var(--paper); }
+  .nav-btn:hover { opacity: .82; }
 
   .hero { padding: 90px 5vw 80px; max-width: 780px; margin: 0 auto; text-align: center; }
   .hero-tag { display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: var(--accent-light); padding: 5px 14px; border-radius: 30px; margin-bottom: 28px; }
@@ -44,11 +40,6 @@
   .btn-hero-primary:hover { background: #2c2c2a; transform: translateY(-1px); }
   .btn-hero-secondary { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
   .btn-hero-secondary:hover { background: var(--paper-warm); }
-
-  .proof { text-align: center; padding: 20px 5vw 60px; }
-  .proof p { font-size: 13px; color: var(--ink-faint); letter-spacing: .04em; margin-bottom: 16px; }
-  .proof-chips { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .chip { background: var(--paper-warm); border: 1px solid var(--border); border-radius: 30px; padding: 6px 14px; font-size: 13px; color: var(--ink-muted); }
 
   .section { padding: 70px 5vw; max-width: 900px; margin: 0 auto; }
   .section-label { font-size: 12px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
@@ -66,50 +57,33 @@
   .plan-name { font-size: 13px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 10px; }
   .plan-price { font-family: 'DM Serif Display', serif; font-size: 42px; color: var(--ink); margin-bottom: 4px; }
   .plan-price span { font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--ink-muted); font-weight: 300; }
-  .plan-desc { font-size: 14px; color: var(--ink-muted); margin-bottom: 24px; line-height: 1.5; }
+  .plan-desc { font-size: 14px; color: var(--ink-muted); margin-bottom: 24px; }
   .plan-features { list-style: none; margin-bottom: 28px; }
   .plan-features li { font-size: 14px; color: var(--ink-muted); padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
   .plan-features li:last-child { border-bottom: none; }
   .check { width: 16px; height: 16px; border-radius: 50%; background: var(--accent-light); color: var(--accent); font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .btn-plan { width: 100%; padding: 12px; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; text-align: center; display: block; text-decoration: none; }
+  .btn-plan { width: 100%; padding: 12px; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: center; display: block; text-decoration: none; transition: all .15s; }
   .btn-plan-outline { background: transparent; border: 1px solid var(--border-strong); color: var(--ink); }
   .btn-plan-outline:hover { background: var(--paper-warm); }
   .btn-plan-fill { background: var(--accent); border: none; color: white; }
   .btn-plan-fill:hover { background: var(--accent-mid); }
-
-  /* Session counter banner */
-  .session-banner { background: var(--paper-warm); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-  .session-dots { display: flex; gap: 6px; align-items: center; }
-  .session-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-  .session-dot.used { background: var(--border-strong); }
-  .session-banner-text { font-size: 13px; color: var(--ink-muted); }
-  .session-banner-text strong { color: var(--ink); }
-
-  /* Paywall overlay */
-  .paywall-overlay { position: fixed; inset: 0; background: rgba(14,14,13,0.6); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
-  .paywall-card { background: var(--paper-card); border-radius: var(--radius-lg); padding: 40px 36px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.2); }
-  .paywall-icon { font-size: 36px; margin-bottom: 16px; }
-  .paywall-card h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 10px; }
-  .paywall-card p { font-size: 15px; color: var(--ink-muted); margin-bottom: 24px; line-height: 1.6; }
-  .paywall-features { list-style: none; text-align: left; margin-bottom: 28px; background: var(--paper-warm); border-radius: var(--radius); padding: 16px 18px; }
-  .paywall-features li { font-size: 14px; color: var(--ink-muted); padding: 5px 0; display: flex; align-items: center; gap: 8px; }
-  .paywall-btn { display: block; width: 100%; padding: 14px; background: var(--accent); color: white; border-radius: 30px; font-size: 15px; font-weight: 500; text-decoration: none; margin-bottom: 10px; transition: background .15s; }
-  .paywall-btn:hover { background: var(--accent-mid); }
-
 
   .app-section { background: var(--paper-warm); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 70px 5vw; }
   .app-inner { max-width: 780px; margin: 0 auto; }
   .app-header { text-align: center; margin-bottom: 40px; }
   .app-card { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 16px; }
   .app-step-label { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
-  textarea.app-input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); resize: vertical; outline: none; transition: border-color .15s; }
+  textarea.app-input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); resize: vertical; outline: none; }
   textarea.app-input:focus { border-color: var(--accent); }
+  input.app-input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); outline: none; }
+  input.app-input:focus { border-color: var(--accent); }
   select.app-select { border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); outline: none; cursor: pointer; flex: 1; min-width: 140px; }
   .app-btn { padding: 10px 22px; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
   .app-btn-primary { background: var(--ink); color: var(--paper); border: none; }
   .app-btn-primary:hover { background: #2c2c2a; }
   .app-btn-sm { padding: 7px 16px; font-size: 13px; background: transparent; border: 1px solid var(--border-strong); color: var(--ink); border-radius: 30px; }
   .app-btn-sm:hover { background: var(--paper-warm); }
+  .app-btn-danger { padding: 7px 16px; font-size: 13px; background: transparent; border: 1px solid #f09595; color: #a33030; border-radius: 30px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
   .q-card { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
   .q-type-badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
   .badge-behavioral { background: #e8f0ec; color: var(--accent); }
@@ -133,105 +107,132 @@
   .summary-stat { text-align: center; background: var(--paper-warm); border-radius: var(--radius); padding: 16px 8px; }
   .stat-num { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--ink); }
   .stat-label { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
+  .session-badge { display: inline-block; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; background: var(--accent-light); color: var(--accent); margin-bottom: 12px; }
+  .pro-badge { background: #fdf0e7; color: var(--warn); }
+
+  /* AUTH MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(14,14,13,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal { background: var(--paper-card); border-radius: var(--radius-lg); padding: 36px 32px; max-width: 420px; width: 100%; }
+  .modal h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 8px; }
+  .modal p { font-size: 14px; color: var(--ink-muted); margin-bottom: 24px; }
+  .modal-tabs { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .modal-tab { flex: 1; padding: 9px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; border: none; background: transparent; color: var(--ink-muted); transition: all .15s; }
+  .modal-tab.active { background: var(--ink); color: var(--paper); }
+  .modal label { font-size: 12px; font-weight: 500; color: var(--ink-muted); display: block; margin-bottom: 6px; margin-top: 14px; }
+  .modal-footer { font-size: 13px; color: var(--ink-faint); text-align: center; margin-top: 16px; }
+
+  /* PAYWALL MODAL */
+  .paywall { background: var(--paper-card); border-radius: var(--radius-lg); padding: 40px 32px; max-width: 440px; width: 100%; text-align: center; }
+  .paywall h2 { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 12px; }
+  .paywall p { font-size: 15px; color: var(--ink-muted); margin-bottom: 28px; line-height: 1.6; }
+  .paywall-price { font-family: 'DM Serif Display', serif; font-size: 48px; color: var(--ink); margin-bottom: 4px; }
+  .paywall-price span { font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--ink-muted); }
+  .paywall-features { list-style: none; text-align: left; margin-bottom: 28px; }
+  .paywall-features li { font-size: 14px; color: var(--ink-muted); padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .paywall-features li:last-child { border-bottom: none; }
 
   footer { padding: 40px 5vw; text-align: center; border-top: 1px solid var(--border); }
   footer p { font-size: 13px; color: var(--ink-faint); }
   footer a { color: var(--ink-muted); text-decoration: none; }
-  footer a:hover { color: var(--ink); }
 </style>
 </head>
 <body>
 
-<!-- PAYWALL OVERLAY (hidden by default) -->
-<div id="paywall-overlay" class="paywall-overlay hidden">
-  <div class="paywall-card">
-    <div class="paywall-icon">🎯</div>
-    <h2>You've used your 3 free sessions</h2>
-    <p>Upgrade to Pro for unlimited practice sessions, 10 questions per session, and detailed coaching — so you're ready for every interview.</p>
-    <ul class="paywall-features">
-      <li><span class="check">✓</span> Unlimited sessions every month</li>
-      <li><span class="check">✓</span> 10 tailored questions per session</li>
-      <li><span class="check">✓</span> Detailed feedback + answer rewrites</li>
-      <li><span class="check">✓</span> Progress tracking & scoring history</li>
-      <li><span class="check">✓</span> Priority support</li>
-    </ul>
-    <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="paywall-btn">Get Pro — $12/month →</a>
+<nav>
+  <a class="nav-logo" href="#">Interview<span>Ace</span></a>
+  <div class="nav-right">
+    <span class="nav-user hidden" id="nav-email"></span>
+    <button class="nav-btn nav-btn-outline hidden" id="nav-logout" onclick="logout()">Log out</button>
+    <button class="nav-btn nav-btn-fill hidden" id="nav-login-btn" onclick="showAuth()">Log in</button>
+    <a href="#pricing" class="nav-btn nav-btn-outline">Pricing</a>
+  </div>
+</nav>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay hidden" id="auth-modal">
+  <div class="modal">
+    <h2>Welcome to InterviewAce</h2>
+    <p>Create a free account to start practicing</p>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-signup" onclick="switchTab('signup')">Sign up</button>
+      <button class="modal-tab" id="tab-login" onclick="switchTab('login')">Log in</button>
+    </div>
+    <label>Email</label>
+    <input type="email" class="app-input" id="auth-email" placeholder="you@email.com">
+    <label>Password</label>
+    <input type="password" class="app-input" id="auth-password" placeholder="Min 6 characters">
+    <div style="margin-top:18px;">
+      <button class="app-btn app-btn-primary" style="width:100%" id="auth-submit-btn" onclick="submitAuth()">Create free account</button>
+    </div>
+    <div id="auth-error" class="error-msg hidden"></div>
+    <div id="auth-loading" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Please wait...</span></div>
+    <div class="modal-footer">By continuing you agree to our terms of service</div>
   </div>
 </div>
 
-<nav>
-  <a class="nav-logo" href="#">Interview<span>Ace</span></a>
-  <a class="nav-cta" href="#try">Try for free</a>
-</nav>
+<!-- PAYWALL MODAL -->
+<div class="modal-overlay hidden" id="paywall-modal">
+  <div class="paywall">
+    <div style="font-size:32px;margin-bottom:12px">🎯</div>
+    <h2>You've used your free session</h2>
+    <p>Upgrade to Pro for unlimited interview practice, deeper feedback, and full coaching reports.</p>
+    <div class="paywall-price">$12 <span>/ month</span></div>
+    <ul class="paywall-features" style="margin-top:16px;">
+      <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Unlimited practice sessions</li>
+      <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>10 questions per session</li>
+      <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Detailed feedback + rewrites</li>
+      <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Overall score and coaching summary</li>
+    </ul>
+    <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="btn-plan btn-plan-fill" style="display:block;padding:14px;font-size:15px;border-radius:30px;background:#2a5c45;color:white;text-decoration:none;text-align:center;font-family:'DM Sans',sans-serif;font-weight:500;">Upgrade to Pro →</a>
+    <div style="margin-top:12px;">
+      <button onclick="closePaywall()" style="background:none;border:none;font-size:13px;color:var(--ink-faint);cursor:pointer;font-family:'DM Sans',sans-serif;">Maybe later</button>
+    </div>
+    <div style="font-size:12px;color:var(--ink-faint);margin-top:8px;">Use code <strong>PRODUCTHUNT50</strong> for 50% off your first month</div>
+  </div>
+</div>
 
 <section class="hero">
   <div class="hero-tag">AI-powered interview prep</div>
   <h1>Ace your next interview <em>with confidence</em></h1>
-  <p>Paste any job description. Get tailored questions, answer them, and receive instant AI coaching — completely free.</p>
+  <p>Paste any job description. Get tailored questions, answer them, and receive instant AI coaching feedback.</p>
   <div class="hero-btns">
     <a href="#try" class="btn-hero btn-hero-primary">Practice free now</a>
     <a href="#pricing" class="btn-hero btn-hero-secondary">See pricing</a>
   </div>
 </section>
 
-<div class="proof">
-  <p>Trusted by job seekers applying to</p>
-  <div class="proof-chips">
-    <span class="chip">Google</span>
-    <span class="chip">Amazon</span>
-    <span class="chip">McKinsey</span>
-    <span class="chip">Goldman Sachs</span>
-    <span class="chip">Startups</span>
-  </div>
-</div>
-
 <section class="section">
   <div class="section-label">How it works</div>
   <h2>From job description to job offer</h2>
   <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <h3>Paste the JD</h3>
-      <p>Drop in the job description from any company. Our AI reads it and understands what matters for that role.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <h3>Get questions</h3>
-      <p>Receive 5 tailored interview questions — behavioral, technical, and situational — specific to that role.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <h3>Answer & improve</h3>
-      <p>Type your answers and get instant AI feedback: what worked, what to improve, and a better version.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <h3>Score & repeat</h3>
-      <p>Get an overall score, your top strength, key gap, and a concrete next step. Repeat until you're ready.</p>
-    </div>
+    <div class="step"><div class="step-num">1</div><h3>Paste the JD</h3><p>Drop in the job description from any company. Our AI reads it and understands what matters for that role.</p></div>
+    <div class="step"><div class="step-num">2</div><h3>Get questions</h3><p>Receive 5 tailored interview questions — behavioral, technical, and situational — specific to that role.</p></div>
+    <div class="step"><div class="step-num">3</div><h3>Answer & improve</h3><p>Type your answers and get instant AI feedback: what worked, what to improve, and a better version.</p></div>
+    <div class="step"><div class="step-num">4</div><h3>Score & repeat</h3><p>Get an overall score, your top strength, key gap, and a concrete next step.</p></div>
   </div>
 </section>
 
 <section class="app-section" id="try">
   <div class="app-inner">
     <div class="app-header">
-      <div class="section-label">Try it now — free</div>
+      <div class="section-label">Try it now</div>
       <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,38px);margin-bottom:10px;">Practice your interview right now</h2>
-      <p style="color:var(--ink-muted);font-size:15px;">No sign up needed. Paste a job description and start practicing.</p>
+      <p style="color:var(--ink-muted);font-size:15px;">Sign up free — 1 full session on us.</p>
     </div>
 
-    <!-- Session counter banner -->
-    <div class="session-banner" id="session-banner">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div class="session-dots" id="session-dots"></div>
-        <span class="session-banner-text" id="session-banner-text"></span>
+    <div id="app-login-prompt" class="app-card" style="text-align:center;padding:40px;">
+      <div style="font-size:15px;font-weight:500;margin-bottom:8px;">Create a free account to start</div>
+      <div style="font-size:14px;color:var(--ink-muted);margin-bottom:20px;">1 free session included — no credit card needed</div>
+      <button class="app-btn app-btn-primary" onclick="showAuth()">Sign up free</button>
+    </div>
+
+    <div id="app-setup" class="app-card hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <div id="session-info" class="session-badge"></div>
+        <button class="app-btn-danger" onclick="logout()">Log out</button>
       </div>
-      <a href="#pricing" style="font-size:13px;color:var(--accent);font-weight:500;text-decoration:none;">Upgrade for unlimited →</a>
-    </div>
-
-    <div class="app-card" id="app-setup">
-      <div class="app-step-label">Step 1 — Paste job description</div>
-      <textarea class="app-input" id="jd-input" rows="5" placeholder="Paste the full job description here...&#10;&#10;e.g. We are looking for a Senior Product Manager to lead our AI product team. You will define roadmaps, work with engineering and design, and drive 0-to-1 products..."></textarea>
+      <div class="app-step-label">Paste job description</div>
+      <textarea class="app-input" id="jd-input" rows="5" placeholder="Paste the full job description here...&#10;&#10;e.g. We are looking for a Senior Product Manager to lead our AI product team..."></textarea>
       <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center;">
         <select class="app-select" id="role-select">
           <option value="Product Manager">Product Manager</option>
@@ -240,7 +241,6 @@
           <option value="Business Analyst">Business Analyst</option>
           <option value="UX Designer">UX Designer</option>
           <option value="Marketing Manager">Marketing Manager</option>
-          <option value="Other">Other</option>
         </select>
         <select class="app-select" id="difficulty">
           <option value="entry-level">Entry level</option>
@@ -255,28 +255,26 @@
 
     <div id="app-interview" class="hidden">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-        <div style="font-size:15px;font-weight:500;color:var(--ink);">Your interview questions</div>
-        <div id="progress-text" style="font-size:13px;color:var(--ink-faint);"></div>
+        <span style="font-size:15px;font-weight:500;">Your interview questions</span>
+        <span id="progress-text" style="font-size:13px;color:var(--ink-faint);"></span>
       </div>
       <div id="questions-container"></div>
-      <div style="margin-top:16px;">
-        <button class="app-btn app-btn-primary" onclick="getOverallFeedback()">Get overall score →</button>
-      </div>
+      <button class="app-btn app-btn-primary" style="margin-top:4px;" onclick="getOverallFeedback()">Get overall score →</button>
     </div>
 
     <div id="app-summary" class="hidden">
       <div class="app-card">
         <div style="font-size:15px;font-weight:500;margin-bottom:18px;">Your interview report</div>
         <div class="summary-grid">
-          <div class="summary-stat"><div class="stat-num" id="score-total">—</div><div class="stat-label">Overall score</div></div>
+          <div class="summary-stat"><div class="stat-num" id="score-total">—</div><div class="stat-label">Overall</div></div>
           <div class="summary-stat"><div class="stat-num" id="score-answered">—</div><div class="stat-label">Answered</div></div>
           <div class="summary-stat"><div class="stat-num" id="score-strong">—</div><div class="stat-label">Strong</div></div>
         </div>
-        <div id="summary-loading" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analysing performance...</span></div>
+        <div id="summary-loading" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analysing...</span></div>
         <div id="summary-feedback"></div>
         <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
           <button class="app-btn app-btn-sm" onclick="restartApp()">Start over</button>
-          <a href="#pricing" class="app-btn app-btn-primary" style="text-decoration:none;">Unlock unlimited →</a>
+          <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="app-btn app-btn-primary" style="text-decoration:none;">Unlock unlimited →</a>
         </div>
       </div>
     </div>
@@ -292,10 +290,10 @@
       <div class="plan-price">$0 <span>/ forever</span></div>
       <div class="plan-desc">Try it out, no card needed.</div>
       <ul class="plan-features">
-        <li><span class="check">✓</span>3 practice sessions/month</li>
-        <li><span class="check">✓</span>5 questions per session</li>
+        <li><span class="check">✓</span>1 free practice session</li>
+        <li><span class="check">✓</span>5 tailored questions</li>
         <li><span class="check">✓</span>Per-answer feedback</li>
-        <li><span class="check">✓</span>Overall score summary</li>
+        <li><span class="check">✓</span>Overall score</li>
       </ul>
       <a href="#try" class="btn-plan btn-plan-outline">Start free</a>
     </div>
@@ -303,146 +301,154 @@
       <div class="plan-badge">Most popular</div>
       <div class="plan-name">Pro</div>
       <div class="plan-price">$12 <span>/ month</span></div>
-      <div class="plan-desc">For serious job seekers who want to be ready.</div>
+      <div class="plan-desc">For serious job seekers.</div>
       <ul class="plan-features">
         <li><span class="check">✓</span>Unlimited sessions</li>
         <li><span class="check">✓</span>10 questions per session</li>
         <li><span class="check">✓</span>Detailed feedback + rewrites</li>
-        <li><span class="check">✓</span>Progress tracking</li>
         <li><span class="check">✓</span>Priority support</li>
       </ul>
-      <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="btn-plan btn-plan-fill">Get Pro →</a>
+      <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="btn-plan btn-plan-fill">Get Pro →</a>
     </div>
   </div>
 </section>
 
 <footer>
   <p style="font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:8px;">Interview<span style="color:var(--accent);">Ace</span></p>
-  <p>Built with AI. Designed for job seekers. &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#a3cbc6cfcfcce3cacdd7c6d1d5cac6d4c2c0c68dc2ca">Contact</a></p>
+  <p>Built with AI. Designed for job seekers. &nbsp;·&nbsp; <a href="mailto:hello@interviewace.ai">Contact</a></p>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ─── SESSION MANAGEMENT ───────────────────────────────────────────────────────
-const FREE_LIMIT = 3;
-const STORAGE_KEY = "interviewace_sessions";
+<script>
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function getSessionData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { count: 0, resetDate: getNextMonthReset() };
-    const data = JSON.parse(raw);
-    // Auto-reset monthly
-    if (Date.now() > data.resetDate) {
-      const fresh = { count: 0, resetDate: getNextMonthReset() };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
-      return fresh;
-    }
-    return data;
-  } catch(e) {
-    return { count: 0, resetDate: getNextMonthReset() };
-  }
+let questions = [], answers = {}, feedbacks = {}, currentSession = null, authTab = "signup";
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) await onLogin(session);
+  else showLoggedOut();
 }
 
-function getNextMonthReset() {
-  const d = new Date();
-  d.setMonth(d.getMonth() + 1);
-  d.setDate(1);
-  d.setHours(0, 0, 0, 0);
-  return d.getTime();
-}
-
-function incrementSession() {
-  const data = getSessionData();
-  data.count++;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  updateSessionBanner();
-}
-
-function isAtLimit() {
-  try {
-    return getSessionData().count >= FREE_LIMIT;
-  } catch(e) {
-    return false; // if anything breaks, don't block the user
-  }
-}
-
-
-
-function updateSessionBanner() {
-  const data = getSessionData();
-  const used = data.count;
-  const remaining = Math.max(0, FREE_LIMIT - used);
-  const dotsEl = document.getElementById("session-dots");
-  const textEl = document.getElementById("session-banner-text");
-
-  dotsEl.innerHTML = "";
-  for (let i = 0; i < FREE_LIMIT; i++) {
-    const dot = document.createElement("div");
-    dot.className = "session-dot" + (i < used ? " used" : "");
-    dotsEl.appendChild(dot);
-  }
-
-  if (remaining === 0) {
-    textEl.innerHTML = `<strong>No free sessions left</strong> this month — upgrade for unlimited`;
+async function onLogin(session) {
+  currentSession = session;
+  const res = await fetch("/api/me", { headers: { Authorization: "Bearer " + session.access_token } });
+  const profile = await res.json();
+  document.getElementById("nav-email").textContent = profile.email;
+  document.getElementById("nav-email").classList.remove("hidden");
+  document.getElementById("nav-logout").classList.remove("hidden");
+  document.getElementById("nav-login-btn").classList.add("hidden");
+  document.getElementById("app-login-prompt").classList.add("hidden");
+  document.getElementById("app-setup").classList.remove("hidden");
+  const badge = document.getElementById("session-info");
+  if (profile.is_pro) {
+    badge.textContent = "Pro — unlimited sessions";
+    badge.classList.add("pro-badge");
   } else {
-    textEl.innerHTML = `<strong>${remaining} free session${remaining !== 1 ? "s" : ""}</strong> remaining this month`;
+    const remaining = Math.max(0, 1 - profile.sessions_used);
+    badge.textContent = remaining > 0 ? `${remaining} free session remaining` : "Free session used — upgrade for more";
   }
+  document.getElementById("auth-modal").classList.add("hidden");
 }
 
-// Init banner on load
-updateSessionBanner();
+function showLoggedOut() {
+  document.getElementById("nav-email").classList.add("hidden");
+  document.getElementById("nav-logout").classList.add("hidden");
+  document.getElementById("nav-login-btn").classList.remove("hidden");
+  document.getElementById("app-login-prompt").classList.remove("hidden");
+  document.getElementById("app-setup").classList.add("hidden");
+}
 
-// ─── APP STATE ────────────────────────────────────────────────────────────────
-let questions = [], answers = {}, feedbacks = {};
+function showAuth() { document.getElementById("auth-modal").classList.remove("hidden"); }
 
-async function callAI(system, user) {
+function switchTab(tab) {
+  authTab = tab;
+  document.getElementById("tab-signup").classList.toggle("active", tab === "signup");
+  document.getElementById("tab-login").classList.toggle("active", tab === "login");
+  document.getElementById("auth-submit-btn").textContent = tab === "signup" ? "Create free account" : "Log in";
+  clearErr("auth-error");
+}
+
+async function submitAuth() {
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  if (!email || !password) { showErr("auth-error", "Please enter email and password."); return; }
+  toggleLoad("auth-loading", true); clearErr("auth-error");
+  try {
+    let result;
+    if (authTab === "signup") {
+      result = await sb.auth.signUp({ email, password });
+      if (result.error) throw result.error;
+      if (result.data.user) {
+        await fetch("/api/init-profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + result.data.session?.access_token },
+        });
+        if (result.data.session) await onLogin(result.data.session);
+        else showErr("auth-error", "Check your email to confirm your account, then log in.");
+      }
+    } else {
+      result = await sb.auth.signInWithPassword({ email, password });
+      if (result.error) throw result.error;
+      await onLogin(result.data.session);
+    }
+  } catch(e) { showErr("auth-error", e.message || "Something went wrong."); }
+  toggleLoad("auth-loading", false);
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  currentSession = null;
+  showLoggedOut();
+  restartApp();
+}
+
+async function callAI(system, user, countSession = false) {
+  if (!currentSession) { showAuth(); throw new Error("Not logged in"); }
   const res = await fetch("/api/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ system, user })
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + currentSession.access_token },
+    body: JSON.stringify({ system, user, countSession })
   });
   const data = await res.json();
+  if (res.status === 403 && data.error === "free_limit_reached") { showPaywall(); throw new Error("free_limit_reached"); }
   if (!res.ok) throw new Error(data.error || "Server error");
   return data.text;
 }
 
-async function generateQuestions() {
-  // Check limit BEFORE generating
-  if (isAtLimit()) {
-    document.getElementById("paywall-overlay").classList.remove("hidden");
-    return;
-  }
+function showPaywall() { document.getElementById("paywall-modal").classList.remove("hidden"); }
+function closePaywall() { document.getElementById("paywall-modal").classList.add("hidden"); }
 
+async function generateQuestions() {
   const jd = document.getElementById("jd-input").value.trim();
   const role = document.getElementById("role-select").value;
   const level = document.getElementById("difficulty").value;
   if (!jd) { showErr("setup-error", "Please paste a job description first."); return; }
-
   toggleLoad("setup-loading", true); clearErr("setup-error");
   try {
     const raw = await callAI(
-      `You are an expert interviewer. Return ONLY valid JSON, no markdown, no explanation. Format: {"questions":[{"id":1,"text":"...","type":"behavioral|technical|situational","tip":"short tip"}]}`,
-      `Generate 5 interview questions for a ${level} ${role}. Mix behavioral, technical, and situational types.\n\nJD: ${jd.slice(0,1500)}`
+      `You are an expert interviewer. Return ONLY valid JSON, no markdown. Format: {"questions":[{"id":1,"text":"...","type":"behavioral|technical|situational","tip":"short tip"}]}`,
+      `Generate 5 interview questions for a ${level} ${role}. Mix types.\n\nJD: ${jd.slice(0,1500)}`,
+      true
     );
     questions = JSON.parse(raw.replace(/```json|```/g,"").trim()).questions;
-
-    // Count this as a used session now that it's actually started
-    incrementSession();
-
     renderQuestions();
     document.getElementById("app-setup").classList.add("hidden");
     document.getElementById("app-interview").classList.remove("hidden");
-  } catch(e) { showErr("setup-error", e.message || "Something went wrong — please try again."); }
+    const badge = document.getElementById("session-info");
+    badge.textContent = "Free session used — upgrade for more";
+  } catch(e) { if (e.message !== "free_limit_reached") showErr("setup-error", e.message || "Something went wrong."); }
   toggleLoad("setup-loading", false);
 }
 
 function renderQuestions() {
-  const c = document.getElementById("questions-container"); c.innerHTML = "";
-  updateProgress();
+  const c = document.getElementById("questions-container"); c.innerHTML = ""; updateProgress();
   questions.forEach(q => {
     const bc = q.type === "behavioral" ? "badge-behavioral" : q.type === "technical" ? "badge-technical" : "badge-situational";
     const d = document.createElement("div"); d.className = "q-card"; d.id = `q-${q.id}`;
-    d.innerHTML = `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;"><div><div style="font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;">Q${q.id} of ${questions.length}</div><div style="font-size:14px;font-weight:500;color:var(--ink);line-height:1.5;">${q.text}</div></div><span class="q-type-badge ${bc}">${q.type}</span></div><div style="font-size:12px;color:var(--ink-faint);margin-bottom:10px;">Tip: ${q.tip}</div><textarea class="app-input" id="ans-${q.id}" rows="3" placeholder="Type your answer here..." oninput="updateProgress()"></textarea><div style="margin-top:8px;"><button class="app-btn app-btn-sm" onclick="getFeedback(${q.id})">Get feedback →</button></div><div id="fb-load-${q.id}" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analysing...</span></div><div id="fb-${q.id}"></div>`;
+    d.innerHTML = `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;"><div><div style="font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;">Q${q.id} of ${questions.length}</div><div style="font-size:14px;font-weight:500;line-height:1.5;">${q.text}</div></div><span class="q-type-badge ${bc}">${q.type}</span></div><div style="font-size:12px;color:var(--ink-faint);margin-bottom:10px;">Tip: ${q.tip}</div><textarea class="app-input" id="ans-${q.id}" rows="3" placeholder="Type your answer here..." oninput="updateProgress()"></textarea><div style="margin-top:8px;"><button class="app-btn app-btn-sm" onclick="getFeedback(${q.id})">Get feedback →</button></div><div id="fb-load-${q.id}" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analysing...</span></div><div id="fb-${q.id}"></div>`;
     c.appendChild(d);
   });
 }
@@ -459,7 +465,7 @@ async function getFeedback(qid) {
   toggleLoad(`fb-load-${qid}`, true);
   try {
     const raw = await callAI(
-      `You are an interview coach. Return ONLY valid JSON: {"score":"high|mid|low","strong":"one sentence","improve":"one suggestion","rewritten":"better version in 1-2 sentences"}`,
+      `You are an interview coach. Return ONLY valid JSON: {"score":"high|mid|low","strong":"one sentence","improve":"one suggestion","rewritten":"better version 1-2 sentences"}`,
       `Question: ${q.text}\nAnswer: ${ans}`
     );
     const fb = JSON.parse(raw.replace(/```json|```/g,"").trim());
@@ -478,10 +484,10 @@ async function getOverallFeedback() {
   const strong = Object.values(feedbacks).filter(f => f.score === "high").length;
   document.getElementById("score-answered").textContent = answered;
   document.getElementById("score-strong").textContent = strong;
-  if (!answered) { document.getElementById("summary-feedback").textContent = "No answers found. Go back and try answering the questions."; return; }
+  if (!answered) { document.getElementById("summary-feedback").textContent = "No answers found."; return; }
   toggleLoad("summary-loading", true);
   try {
-    const blob = Object.entries(answers).map(([id, a]) => { const q = questions.find(x => x.id == id); return `Q: ${q.text}\nA: ${a}\nScore: ${feedbacks[id]?.score||"unrated"}`; }).join("\n\n");
+    const blob = Object.entries(answers).map(([id,a]) => { const q = questions.find(x => x.id == id); return `Q: ${q.text}\nA: ${a}\nScore: ${feedbacks[id]?.score||"unrated"}`; }).join("\n\n");
     const raw = await callAI(
       `You are an interview coach. Return ONLY valid JSON: {"overallScore":"X/10","headline":"one encouraging sentence","topStrength":"...","topGap":"...","nextStep":"one specific action"}`,
       `Evaluate this mock interview:\n\n${blob}`
@@ -491,38 +497,24 @@ async function getOverallFeedback() {
     document.getElementById("summary-feedback").innerHTML = `<p style="font-weight:500;margin-bottom:12px;">${d.headline}</p><div class="fb-box fb-good" style="margin-bottom:8px;"><strong>Top strength:</strong> ${d.topStrength}</div><div class="fb-box fb-improve" style="margin-bottom:8px;"><strong>Key gap:</strong> ${d.topGap}</div><div class="fb-box fb-neutral"><strong>Next step:</strong> ${d.nextStep}</div>`;
   } catch(e) { document.getElementById("summary-feedback").textContent = "Could not generate summary."; }
   toggleLoad("summary-loading", false);
-
-  // After summary, show paywall if now at limit
-  if (isAtLimit()) {
-    setTimeout(() => {
-      document.getElementById("paywall-overlay").classList.remove("hidden");
-    }, 2000);
-  }
 }
 
 function restartApp() {
   questions = []; answers = {}; feedbacks = {};
-  document.getElementById("jd-input").value = "";
-  document.getElementById("questions-container").innerHTML = "";
+  const jd = document.getElementById("jd-input");
+  if (jd) jd.value = "";
+  const qc = document.getElementById("questions-container");
+  if (qc) qc.innerHTML = "";
   document.getElementById("app-summary").classList.add("hidden");
   document.getElementById("app-interview").classList.add("hidden");
-  document.getElementById("app-setup").classList.remove("hidden");
-  updateSessionBanner();
-
-  // If at limit on restart, show paywall
-  if (isAtLimit()) {
-    document.getElementById("paywall-overlay").classList.remove("hidden");
-  }
+  if (currentSession) document.getElementById("app-setup").classList.remove("hidden");
 }
 
 function toggleLoad(id, show) { document.getElementById(id).classList.toggle("hidden", !show); }
 function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.remove("hidden"); }
 function clearErr(id) { const el = document.getElementById(id); el.textContent = ""; el.classList.add("hidden"); }
 
-window.generateQuestions = generateQuestions;
-window.getFeedback = getFeedback;
-window.getOverallFeedback = getOverallFeedback;
-window.restartApp = restartApp;
+init();
 </script>
 </body>
 </html>
