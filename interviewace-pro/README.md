@@ -1,32 +1,56 @@
-# InterviewAce — Deployment Guide
+# InterviewAce — AI Mock Interview Coach
 
-## Folder structure
-```
-interviewace-pro/
-├── server.js          ← backend (hides your API key)
-├── package.json
-└── public/
-    └── index.html     ← your website
-```
+> Paste any job description. Get tailored interview questions. Receive instant AI feedback on your answers.
 
-## Deploy to Render.com (free)
+## What it does
 
-1. Push this entire folder to a NEW GitHub repo called `interviewace-pro`
-2. Go to render.com → sign up with GitHub
-3. Click "New" → "Web Service" → connect your `interviewace-pro` repo
-4. Fill in these settings:
-   - Name: interviewace
-   - Runtime: Node
-   - Build Command: npm install
-   - Start Command: node server.js
-5. Click "Environment" → "Add Environment Variable":
-   - Key:   GROQ_API_KEY
-   - Value: your gsk_... key from console.groq.com
-6. Click "Create Web Service"
+InterviewAce helps job seekers practice interviews smarter:
 
-Render gives you a free URL like: https://interviewace.onrender.com
+- Paste any job description from any company
+- Get 5 tailored questions — behavioral, technical, and situational
+- Type your answers and receive instant feedback on what worked, what to improve, and a better version
+- Get an overall score, top strength, key gap, and next step
 
-## Replace Gumroad link
-In public/index.html, find:
-  YOUR_GUMROAD_LINK_HERE
-Replace with your actual Gumroad product link.
+No sign up. No API key. Just paste and practice.
+
+## Live demo
+
+[Your Render URL here]
+
+## Tech stack
+
+- Frontend: HTML, CSS, JavaScript
+- Backend: Node.js + Express
+- AI: Groq API (Llama 3.3 70B)
+- Hosting: Render.com
+
+## Run locally
+
+1. Clone the repo
+git clone https://github.com/Hasin02/interviewace-pro
+
+2. Install dependencies
+npm install
+
+3. Add your Groq API key
+Create a .env file:
+GROQ_API_KEY=gsk_...
+
+4. Start the server
+node server.js
+
+5. Open in browser
+http://localhost:3000
+
+## Deploy to Render
+
+1. Push this repo to GitHub
+2. Go to render.com → New Web Service → connect repo
+3. Build command: npm install
+4. Start command: node server.js
+5. Add environment variable: GROQ_API_KEY = your key
+6. Deploy
+
+## Built by
+
+Hasin — aspiring AI Product Manager building in public.
