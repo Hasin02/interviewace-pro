@@ -359,7 +359,11 @@ function incrementSession() {
 }
 
 function isAtLimit() {
-  return getSessionData().count >= FREE_LIMIT;
+  try {
+    return getSessionData().count >= FREE_LIMIT;
+  } catch(e) {
+    return false; // if anything breaks, don't block the user
+  }
 }
 
 
@@ -512,4 +516,13 @@ function restartApp() {
 }
 
 function toggleLoad(id, show) { document.getElementById(id).classList.toggle("hidden", !show); }
-function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.remove("h
+function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.remove("hidden"); }
+function clearErr(id) { const el = document.getElementById(id); el.textContent = ""; el.classList.add("hidden"); }
+
+window.generateQuestions = generateQuestions;
+window.getFeedback = getFeedback;
+window.getOverallFeedback = getOverallFeedback;
+window.restartApp = restartApp;
+</script>
+</body>
+</html>
