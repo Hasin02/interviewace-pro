@@ -95,8 +95,7 @@
   .paywall-features li { font-size: 14px; color: var(--ink-muted); padding: 5px 0; display: flex; align-items: center; gap: 8px; }
   .paywall-btn { display: block; width: 100%; padding: 14px; background: var(--accent); color: white; border-radius: 30px; font-size: 15px; font-weight: 500; text-decoration: none; margin-bottom: 10px; transition: background .15s; }
   .paywall-btn:hover { background: var(--accent-mid); }
-  .paywall-reset { font-size: 12px; color: var(--ink-faint); margin-top: 4px; }
-  .paywall-reset a { color: var(--ink-muted); cursor: pointer; text-decoration: underline; }
+
 
   .app-section { background: var(--paper-warm); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 70px 5vw; }
   .app-inner { max-width: 780px; margin: 0 auto; }
@@ -157,7 +156,6 @@
       <li><span class="check">✓</span> Priority support</li>
     </ul>
     <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="paywall-btn">Get Pro — $12/month →</a>
-    <p class="paywall-reset">Already bought? <a onclick="resetSessions()">Reset my sessions</a></p>
   </div>
 </div>
 
@@ -320,10 +318,10 @@
 
 <footer>
   <p style="font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:8px;">Interview<span style="color:var(--accent);">Ace</span></p>
-  <p>Built with AI. Designed for job seekers. &nbsp;·&nbsp; <a href="mailto:hello@interviewace.ai">Contact</a></p>
+  <p>Built with AI. Designed for job seekers. &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#a3cbc6cfcfcce3cacdd7c6d1d5cac6d4c2c0c68dc2ca">Contact</a></p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─── SESSION MANAGEMENT ───────────────────────────────────────────────────────
 const FREE_LIMIT = 3;
 const STORAGE_KEY = "interviewace_sessions";
@@ -364,12 +362,7 @@ function isAtLimit() {
   return getSessionData().count >= FREE_LIMIT;
 }
 
-function resetSessions() {
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById("paywall-overlay").classList.add("hidden");
-  updateSessionBanner();
-  restartApp();
-}
+
 
 function updateSessionBanner() {
   const data = getSessionData();
@@ -519,8 +512,4 @@ function restartApp() {
 }
 
 function toggleLoad(id, show) { document.getElementById(id).classList.toggle("hidden", !show); }
-function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.remove("hidden"); }
-function clearErr(id) { const el = document.getElementById(id); el.textContent = ""; el.classList.add("hidden"); }
-</script>
-</body>
-</html>
+function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.remove("h
