@@ -77,10 +77,30 @@
   .btn-plan-fill { background: var(--accent); border: none; color: white; }
   .btn-plan-fill:hover { background: var(--accent-mid); }
 
+  /* Session counter banner */
+  .session-banner { background: var(--paper-warm); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .session-dots { display: flex; gap: 6px; align-items: center; }
+  .session-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .session-dot.used { background: var(--border-strong); }
+  .session-banner-text { font-size: 13px; color: var(--ink-muted); }
+  .session-banner-text strong { color: var(--ink); }
+
+  /* Paywall overlay */
+  .paywall-overlay { position: fixed; inset: 0; background: rgba(14,14,13,0.6); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+  .paywall-card { background: var(--paper-card); border-radius: var(--radius-lg); padding: 40px 36px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.2); }
+  .paywall-icon { font-size: 36px; margin-bottom: 16px; }
+  .paywall-card h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 10px; }
+  .paywall-card p { font-size: 15px; color: var(--ink-muted); margin-bottom: 24px; line-height: 1.6; }
+  .paywall-features { list-style: none; text-align: left; margin-bottom: 28px; background: var(--paper-warm); border-radius: var(--radius); padding: 16px 18px; }
+  .paywall-features li { font-size: 14px; color: var(--ink-muted); padding: 5px 0; display: flex; align-items: center; gap: 8px; }
+  .paywall-btn { display: block; width: 100%; padding: 14px; background: var(--accent); color: white; border-radius: 30px; font-size: 15px; font-weight: 500; text-decoration: none; margin-bottom: 10px; transition: background .15s; }
+  .paywall-btn:hover { background: var(--accent-mid); }
+  .paywall-reset { font-size: 12px; color: var(--ink-faint); margin-top: 4px; }
+  .paywall-reset a { color: var(--ink-muted); cursor: pointer; text-decoration: underline; }
+
   .app-section { background: var(--paper-warm); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 70px 5vw; }
   .app-inner { max-width: 780px; margin: 0 auto; }
   .app-header { text-align: center; margin-bottom: 40px; }
-
   .app-card { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 16px; }
   .app-step-label { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
   textarea.app-input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); resize: vertical; outline: none; transition: border-color .15s; }
@@ -122,6 +142,24 @@
 </style>
 </head>
 <body>
+
+<!-- PAYWALL OVERLAY (hidden by default) -->
+<div id="paywall-overlay" class="paywall-overlay hidden">
+  <div class="paywall-card">
+    <div class="paywall-icon">🎯</div>
+    <h2>You've used your 3 free sessions</h2>
+    <p>Upgrade to Pro for unlimited practice sessions, 10 questions per session, and detailed coaching — so you're ready for every interview.</p>
+    <ul class="paywall-features">
+      <li><span class="check">✓</span> Unlimited sessions every month</li>
+      <li><span class="check">✓</span> 10 tailored questions per session</li>
+      <li><span class="check">✓</span> Detailed feedback + answer rewrites</li>
+      <li><span class="check">✓</span> Progress tracking & scoring history</li>
+      <li><span class="check">✓</span> Priority support</li>
+    </ul>
+    <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="paywall-btn">Get Pro — $12/month →</a>
+    <p class="paywall-reset">Already bought? <a onclick="resetSessions()">Reset my sessions</a></p>
+  </div>
+</div>
 
 <nav>
   <a class="nav-logo" href="#">Interview<span>Ace</span></a>
@@ -182,6 +220,15 @@
       <div class="section-label">Try it now — free</div>
       <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,38px);margin-bottom:10px;">Practice your interview right now</h2>
       <p style="color:var(--ink-muted);font-size:15px;">No sign up needed. Paste a job description and start practicing.</p>
+    </div>
+
+    <!-- Session counter banner -->
+    <div class="session-banner" id="session-banner">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="session-dots" id="session-dots"></div>
+        <span class="session-banner-text" id="session-banner-text"></span>
+      </div>
+      <a href="#pricing" style="font-size:13px;color:var(--accent);font-weight:500;text-decoration:none;">Upgrade for unlimited →</a>
     </div>
 
     <div class="app-card" id="app-setup">
@@ -277,6 +324,78 @@
 </footer>
 
 <script>
+// ─── SESSION MANAGEMENT ───────────────────────────────────────────────────────
+const FREE_LIMIT = 3;
+const STORAGE_KEY = "interviewace_sessions";
+
+function getSessionData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { count: 0, resetDate: getNextMonthReset() };
+    const data = JSON.parse(raw);
+    // Auto-reset monthly
+    if (Date.now() > data.resetDate) {
+      const fresh = { count: 0, resetDate: getNextMonthReset() };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+      return fresh;
+    }
+    return data;
+  } catch(e) {
+    return { count: 0, resetDate: getNextMonthReset() };
+  }
+}
+
+function getNextMonthReset() {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1);
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+function incrementSession() {
+  const data = getSessionData();
+  data.count++;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  updateSessionBanner();
+}
+
+function isAtLimit() {
+  return getSessionData().count >= FREE_LIMIT;
+}
+
+function resetSessions() {
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById("paywall-overlay").classList.add("hidden");
+  updateSessionBanner();
+  restartApp();
+}
+
+function updateSessionBanner() {
+  const data = getSessionData();
+  const used = data.count;
+  const remaining = Math.max(0, FREE_LIMIT - used);
+  const dotsEl = document.getElementById("session-dots");
+  const textEl = document.getElementById("session-banner-text");
+
+  dotsEl.innerHTML = "";
+  for (let i = 0; i < FREE_LIMIT; i++) {
+    const dot = document.createElement("div");
+    dot.className = "session-dot" + (i < used ? " used" : "");
+    dotsEl.appendChild(dot);
+  }
+
+  if (remaining === 0) {
+    textEl.innerHTML = `<strong>No free sessions left</strong> this month — upgrade for unlimited`;
+  } else {
+    textEl.innerHTML = `<strong>${remaining} free session${remaining !== 1 ? "s" : ""}</strong> remaining this month`;
+  }
+}
+
+// Init banner on load
+updateSessionBanner();
+
+// ─── APP STATE ────────────────────────────────────────────────────────────────
 let questions = [], answers = {}, feedbacks = {};
 
 async function callAI(system, user) {
@@ -291,10 +410,17 @@ async function callAI(system, user) {
 }
 
 async function generateQuestions() {
+  // Check limit BEFORE generating
+  if (isAtLimit()) {
+    document.getElementById("paywall-overlay").classList.remove("hidden");
+    return;
+  }
+
   const jd = document.getElementById("jd-input").value.trim();
   const role = document.getElementById("role-select").value;
   const level = document.getElementById("difficulty").value;
   if (!jd) { showErr("setup-error", "Please paste a job description first."); return; }
+
   toggleLoad("setup-loading", true); clearErr("setup-error");
   try {
     const raw = await callAI(
@@ -302,6 +428,10 @@ async function generateQuestions() {
       `Generate 5 interview questions for a ${level} ${role}. Mix behavioral, technical, and situational types.\n\nJD: ${jd.slice(0,1500)}`
     );
     questions = JSON.parse(raw.replace(/```json|```/g,"").trim()).questions;
+
+    // Count this as a used session now that it's actually started
+    incrementSession();
+
     renderQuestions();
     document.getElementById("app-setup").classList.add("hidden");
     document.getElementById("app-interview").classList.remove("hidden");
@@ -364,6 +494,13 @@ async function getOverallFeedback() {
     document.getElementById("summary-feedback").innerHTML = `<p style="font-weight:500;margin-bottom:12px;">${d.headline}</p><div class="fb-box fb-good" style="margin-bottom:8px;"><strong>Top strength:</strong> ${d.topStrength}</div><div class="fb-box fb-improve" style="margin-bottom:8px;"><strong>Key gap:</strong> ${d.topGap}</div><div class="fb-box fb-neutral"><strong>Next step:</strong> ${d.nextStep}</div>`;
   } catch(e) { document.getElementById("summary-feedback").textContent = "Could not generate summary."; }
   toggleLoad("summary-loading", false);
+
+  // After summary, show paywall if now at limit
+  if (isAtLimit()) {
+    setTimeout(() => {
+      document.getElementById("paywall-overlay").classList.remove("hidden");
+    }, 2000);
+  }
 }
 
 function restartApp() {
@@ -373,6 +510,12 @@ function restartApp() {
   document.getElementById("app-summary").classList.add("hidden");
   document.getElementById("app-interview").classList.add("hidden");
   document.getElementById("app-setup").classList.remove("hidden");
+  updateSessionBanner();
+
+  // If at limit on restart, show paywall
+  if (isAtLimit()) {
+    document.getElementById("paywall-overlay").classList.remove("hidden");
+  }
 }
 
 function toggleLoad(id, show) { document.getElementById(id).classList.toggle("hidden", !show); }
