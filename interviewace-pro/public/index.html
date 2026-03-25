@@ -183,7 +183,7 @@
       <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Detailed feedback + rewrites</li>
       <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Overall score and coaching summary</li>
     </ul>
-    <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="btn-plan btn-plan-fill" style="display:block;padding:14px;font-size:15px;border-radius:30px;background:#2a5c45;color:white;text-decoration:none;text-align:center;font-family:'DM Sans',sans-serif;font-weight:500;">Upgrade to Pro →</a>
+    <a href="https://hasinjavaid.gumroad.com/l/interviewace_HERE" target="_blank" class="btn-plan btn-plan-fill" style="display:block;padding:14px;font-size:15px;border-radius:30px;background:#2a5c45;color:white;text-decoration:none;text-align:center;font-family:'DM Sans',sans-serif;font-weight:500;">Upgrade to Pro →</a>
     <div style="margin-top:12px;">
       <button onclick="closePaywall()" style="background:none;border:none;font-size:13px;color:var(--ink-faint);cursor:pointer;font-family:'DM Sans',sans-serif;">Maybe later</button>
     </div>
@@ -274,7 +274,7 @@
         <div id="summary-feedback"></div>
         <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
           <button class="app-btn app-btn-sm" onclick="restartApp()">Start over</button>
-          <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="app-btn app-btn-primary" style="text-decoration:none;">Unlock unlimited →</a>
+          <a href="https://hasinjavaid.gumroad.com/l/interviewace_HERE" target="_blank" class="app-btn app-btn-primary" style="text-decoration:none;">Unlock unlimited →</a>
         </div>
       </div>
     </div>
@@ -308,7 +308,7 @@
         <li><span class="check">✓</span>Detailed feedback + rewrites</li>
         <li><span class="check">✓</span>Priority support</li>
       </ul>
-      <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="btn-plan btn-plan-fill">Get Pro →</a>
+      <a href="https://hasinjavaid.gumroad.com/l/interviewace_HERE" target="_blank" class="btn-plan btn-plan-fill">Get Pro →</a>
     </div>
   </div>
 </section>
@@ -324,7 +324,7 @@ const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let questions = [], answers = {}, feedbacks = {}, currentSession = null, authTab = "signup", userIsPro = false;
+var questions = [], answers = {}, feedbacks = {}, currentSession = null, authTab = "signup", userIsPro = false;
 
 async function init() {
   const { data: { session } } = await sb.auth.getSession();
