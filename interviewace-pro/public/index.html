@@ -8,132 +8,149 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --ink: #0e0e0d; --ink-muted: #6b6b65; --ink-faint: #a8a89f;
-    --paper: #f5f3ee; --paper-warm: #ede9e0; --paper-card: #ffffff;
-    --accent: #2a5c45; --accent-light: #e8f0ec; --accent-mid: #4a8c6a;
-    --warn: #c05c1a; --warn-light: #fdf0e7;
-    --border: rgba(14,14,13,0.1); --border-strong: rgba(14,14,13,0.2);
-    --radius: 10px; --radius-lg: 16px;
+    --ink:#0e0e0d;--ink-muted:#6b6b65;--ink-faint:#a8a89f;
+    --paper:#f5f3ee;--paper-warm:#ede9e0;--paper-card:#ffffff;
+    --accent:#2a5c45;--accent-light:#e8f0ec;--accent-mid:#4a8c6a;
+    --gold:#b87c1a;--gold-light:#fdf3e0;
+    --warn:#c05c1a;--warn-light:#fdf0e7;
+    --border:rgba(14,14,13,0.1);--border-strong:rgba(14,14,13,0.2);
+    --radius:10px;--radius-lg:16px;
   }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); font-size: 16px; line-height: 1.6; }
-
-  nav { position: sticky; top: 0; z-index: 100; background: rgba(245,243,238,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 5vw; display: flex; align-items: center; justify-content: space-between; height: 58px; }
-  .nav-logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); text-decoration: none; }
-  .nav-logo span { color: var(--accent); }
-  .nav-right { display: flex; align-items: center; gap: 12px; }
-  .nav-user { font-size: 13px; color: var(--ink-muted); }
-  .nav-btn { padding: 7px 18px; border-radius: 30px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; border: none; }
-  .nav-btn-outline { background: transparent; border: 1px solid var(--border-strong); color: var(--ink); }
-  .nav-btn-fill { background: var(--ink); color: var(--paper); }
-  .nav-btn:hover { opacity: .82; }
-
-  .hero { padding: 90px 5vw 80px; max-width: 780px; margin: 0 auto; text-align: center; }
-  .hero-tag { display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: var(--accent-light); padding: 5px 14px; border-radius: 30px; margin-bottom: 28px; }
-  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(38px, 7vw, 66px); line-height: 1.1; color: var(--ink); margin-bottom: 22px; }
-  .hero h1 em { font-style: italic; color: var(--accent); }
-  .hero p { font-size: 18px; color: var(--ink-muted); max-width: 520px; margin: 0 auto 38px; font-weight: 300; }
-  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .btn-hero { padding: 13px 28px; border-radius: 30px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-block; border: none; font-family: 'DM Sans', sans-serif; }
-  .btn-hero-primary { background: var(--ink); color: var(--paper); }
-  .btn-hero-primary:hover { background: #2c2c2a; transform: translateY(-1px); }
-  .btn-hero-secondary { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
-  .btn-hero-secondary:hover { background: var(--paper-warm); }
-
-  .section { padding: 70px 5vw; max-width: 900px; margin: 0 auto; }
-  .section-label { font-size: 12px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
-  .section h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 42px); color: var(--ink); margin-bottom: 48px; }
-  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
-  .step { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 24px; }
-  .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-light); color: var(--accent); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-  .step h3 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
-  .step p { font-size: 14px; color: var(--ink-muted); line-height: 1.6; }
-
-  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 48px; }
-  .plan { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px 28px; }
-  .plan.featured { border: 2px solid var(--accent); position: relative; }
-  .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 11px; font-weight: 500; padding: 4px 14px; border-radius: 30px; white-space: nowrap; }
-  .plan-name { font-size: 13px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 10px; }
-  .plan-price { font-family: 'DM Serif Display', serif; font-size: 42px; color: var(--ink); margin-bottom: 4px; }
-  .plan-price span { font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--ink-muted); font-weight: 300; }
-  .plan-desc { font-size: 14px; color: var(--ink-muted); margin-bottom: 24px; }
-  .plan-features { list-style: none; margin-bottom: 28px; }
-  .plan-features li { font-size: 14px; color: var(--ink-muted); padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .plan-features li:last-child { border-bottom: none; }
-  .check { width: 16px; height: 16px; border-radius: 50%; background: var(--accent-light); color: var(--accent); font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .btn-plan { width: 100%; padding: 12px; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: center; display: block; text-decoration: none; transition: all .15s; }
-  .btn-plan-outline { background: transparent; border: 1px solid var(--border-strong); color: var(--ink); }
-  .btn-plan-outline:hover { background: var(--paper-warm); }
-  .btn-plan-fill { background: var(--accent); border: none; color: white; }
-  .btn-plan-fill:hover { background: var(--accent-mid); }
-
-  .app-section { background: var(--paper-warm); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 70px 5vw; }
-  .app-inner { max-width: 780px; margin: 0 auto; }
-  .app-header { text-align: center; margin-bottom: 40px; }
-  .app-card { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 16px; }
-  .app-step-label { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
-  textarea.app-input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); resize: vertical; outline: none; }
-  textarea.app-input:focus { border-color: var(--accent); }
-  input.app-input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); outline: none; }
-  input.app-input:focus { border-color: var(--accent); }
-  select.app-select { border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); outline: none; cursor: pointer; flex: 1; min-width: 140px; }
-  .app-btn { padding: 10px 22px; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
-  .app-btn-primary { background: var(--ink); color: var(--paper); border: none; }
-  .app-btn-primary:hover { background: #2c2c2a; }
-  .app-btn-sm { padding: 7px 16px; font-size: 13px; background: transparent; border: 1px solid var(--border-strong); color: var(--ink); border-radius: 30px; }
-  .app-btn-sm:hover { background: var(--paper-warm); }
-  .app-btn-danger { padding: 7px 16px; font-size: 13px; background: transparent; border: 1px solid #f09595; color: #a33030; border-radius: 30px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-  .q-card { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
-  .q-type-badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
-  .badge-behavioral { background: #e8f0ec; color: var(--accent); }
-  .badge-technical { background: #edf4e0; color: #3a6e12; }
-  .badge-situational { background: #fdf0e7; color: var(--warn); }
-  .fb-box { margin-top: 10px; padding: 10px 14px; border-radius: 0; border-left: 3px solid; font-size: 13px; line-height: 1.6; }
-  .fb-good { background: #edf6f1; border-color: var(--accent); color: #1e4a35; }
-  .fb-improve { background: var(--warn-light); border-color: var(--warn); color: #8a3f10; }
-  .fb-neutral { background: var(--paper-warm); border-color: var(--border-strong); color: var(--ink-muted); }
-  .score-badge { display: inline-block; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; }
-  .score-high { background: #e8f0ec; color: var(--accent); }
-  .score-mid { background: #fdf0e7; color: var(--warn); }
-  .score-low { background: #fdecea; color: #a33030; }
-  .loading-dots { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-faint); padding: 6px 0; }
-  .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-faint); animation: blink 1.2s ease-in-out infinite; }
-  .dot:nth-child(2) { animation-delay: .2s; } .dot:nth-child(3) { animation-delay: .4s; }
-  @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
-  .hidden { display: none !important; }
-  .error-msg { font-size: 13px; color: #a33030; padding: 6px 0; }
-  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-  .summary-stat { text-align: center; background: var(--paper-warm); border-radius: var(--radius); padding: 16px 8px; }
-  .stat-num { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--ink); }
-  .stat-label { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
-  .session-badge { display: inline-block; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; background: var(--accent-light); color: var(--accent); margin-bottom: 12px; }
-  .pro-badge { background: #fdf0e7; color: var(--warn); }
-
-  /* AUTH MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(14,14,13,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .modal { background: var(--paper-card); border-radius: var(--radius-lg); padding: 36px 32px; max-width: 420px; width: 100%; }
-  .modal h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 8px; }
-  .modal p { font-size: 14px; color: var(--ink-muted); margin-bottom: 24px; }
-  .modal-tabs { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .modal-tab { flex: 1; padding: 9px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; border: none; background: transparent; color: var(--ink-muted); transition: all .15s; }
-  .modal-tab.active { background: var(--ink); color: var(--paper); }
-  .modal label { font-size: 12px; font-weight: 500; color: var(--ink-muted); display: block; margin-bottom: 6px; margin-top: 14px; }
-  .modal-footer { font-size: 13px; color: var(--ink-faint); text-align: center; margin-top: 16px; }
-
-  /* PAYWALL MODAL */
-  .paywall { background: var(--paper-card); border-radius: var(--radius-lg); padding: 40px 32px; max-width: 440px; width: 100%; text-align: center; }
-  .paywall h2 { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 12px; }
-  .paywall p { font-size: 15px; color: var(--ink-muted); margin-bottom: 28px; line-height: 1.6; }
-  .paywall-price { font-family: 'DM Serif Display', serif; font-size: 48px; color: var(--ink); margin-bottom: 4px; }
-  .paywall-price span { font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--ink-muted); }
-  .paywall-features { list-style: none; text-align: left; margin-bottom: 28px; }
-  .paywall-features li { font-size: 14px; color: var(--ink-muted); padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .paywall-features li:last-child { border-bottom: none; }
-
-  footer { padding: 40px 5vw; text-align: center; border-top: 1px solid var(--border); }
-  footer p { font-size: 13px; color: var(--ink-faint); }
-  footer a { color: var(--ink-muted); text-decoration: none; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:16px;line-height:1.6}
+  nav{position:sticky;top:0;z-index:100;background:rgba(245,243,238,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:58px}
+  .nav-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);text-decoration:none}
+  .nav-logo span{color:var(--accent)}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .nav-user{font-size:13px;color:var(--ink-muted)}
+  .nav-btn{padding:7px 18px;border-radius:30px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;border:none;transition:opacity .15s}
+  .nav-btn-outline{background:transparent;border:1px solid var(--border-strong);color:var(--ink)}
+  .nav-btn-fill{background:var(--ink);color:var(--paper)}
+  .nav-btn:hover{opacity:.82}
+  .hero{padding:90px 5vw 80px;max-width:780px;margin:0 auto;text-align:center}
+  .hero-tag{display:inline-block;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-light);padding:5px 14px;border-radius:30px;margin-bottom:28px}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:clamp(38px,7vw,66px);line-height:1.1;margin-bottom:22px}
+  .hero h1 em{font-style:italic;color:var(--accent)}
+  .hero p{font-size:18px;color:var(--ink-muted);max-width:520px;margin:0 auto 38px;font-weight:300}
+  .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn-hero{padding:13px 28px;border-radius:30px;font-size:15px;font-weight:500;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-block;border:none;font-family:'DM Sans',sans-serif}
+  .btn-hero-primary{background:var(--ink);color:var(--paper)}
+  .btn-hero-primary:hover{background:#2c2c2a;transform:translateY(-1px)}
+  .btn-hero-secondary{background:transparent;color:var(--ink);border:1px solid var(--border-strong)}
+  .btn-hero-secondary:hover{background:var(--paper-warm)}
+  .section{padding:70px 5vw;max-width:960px;margin:0 auto}
+  .section-label{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  .section h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,42px);margin-bottom:48px}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px}
+  .step{background:var(--paper-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 24px}
+  .step-num{width:32px;height:32px;border-radius:50%;background:var(--accent-light);color:var(--accent);font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+  .step h3{font-size:16px;font-weight:500;margin-bottom:8px}
+  .step p{font-size:14px;color:var(--ink-muted);line-height:1.6}
+  .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:48px}
+  .plan{background:var(--paper-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 24px;position:relative}
+  .plan.featured{border:2px solid var(--accent)}
+  .plan.gold{border:2px solid var(--gold)}
+  .plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:500;padding:4px 14px;border-radius:30px;white-space:nowrap;color:white}
+  .badge-green{background:var(--accent)}
+  .badge-gold{background:var(--gold)}
+  .plan-name{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:8px}
+  .plan-price{font-family:'DM Serif Display',serif;font-size:38px;color:var(--ink);margin-bottom:4px}
+  .plan-price span{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink-muted);font-weight:300}
+  .plan-desc{font-size:13px;color:var(--ink-muted);margin-bottom:20px;line-height:1.5}
+  .plan-features{list-style:none;margin-bottom:24px}
+  .plan-features li{font-size:13px;color:var(--ink-muted);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px}
+  .plan-features li:last-child{border-bottom:none}
+  .check{width:16px;height:16px;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .check-green{background:var(--accent-light);color:var(--accent)}
+  .check-gold{background:var(--gold-light);color:var(--gold)}
+  .btn-plan{width:100%;padding:11px;border-radius:30px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;display:block;text-decoration:none;transition:all .15s;border:none}
+  .btn-green{background:var(--accent);color:white}
+  .btn-green:hover{background:var(--accent-mid)}
+  .btn-gold{background:var(--gold);color:white}
+  .btn-gold:hover{opacity:.88}
+  .btn-outline{background:transparent;border:1px solid var(--border-strong);color:var(--ink)}
+  .btn-outline:hover{background:var(--paper-warm)}
+  .app-section{background:var(--paper-warm);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:70px 5vw}
+  .app-inner{max-width:780px;margin:0 auto}
+  .app-header{text-align:center;margin-bottom:40px}
+  .app-card{background:var(--paper-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;margin-bottom:16px}
+  .lbl{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+  textarea.inp{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--paper);resize:vertical;outline:none}
+  textarea.inp:focus{border-color:var(--accent)}
+  input.inp{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--paper);outline:none}
+  input.inp:focus{border-color:var(--accent)}
+  select.sel{border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--paper);outline:none;cursor:pointer;flex:1;min-width:140px}
+  .abtn{padding:9px 20px;border-radius:30px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap;border:none}
+  .abtn-dark{background:var(--ink);color:var(--paper)}
+  .abtn-dark:hover{background:#2c2c2a}
+  .abtn-sm{padding:7px 14px;font-size:13px;background:transparent;border:1px solid var(--border-strong);color:var(--ink);border-radius:30px;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .abtn-sm:hover{background:var(--paper-warm)}
+  .abtn-gold{padding:7px 14px;font-size:13px;background:var(--gold-light);border:1px solid var(--gold);color:var(--gold);border-radius:30px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
+  .abtn-danger{padding:7px 14px;font-size:13px;background:transparent;border:1px solid #f09595;color:#a33030;border-radius:30px;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .q-card{background:var(--paper);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+  .q-type-badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px}
+  .b-beh{background:#e8f0ec;color:var(--accent)}
+  .b-tec{background:#edf4e0;color:#3a6e12}
+  .b-sit{background:#fdf0e7;color:var(--warn)}
+  .fb{padding:10px 14px;border-left:3px solid;font-size:13px;line-height:1.6;margin-top:6px;border-radius:0}
+  .fb-g{background:#edf6f1;border-color:var(--accent);color:#1e4a35}
+  .fb-w{background:var(--warn-light);border-color:var(--warn);color:#8a3f10}
+  .fb-n{background:var(--paper-warm);border-color:var(--border-strong);color:var(--ink-muted)}
+  .fb-gold{background:var(--gold-light);border-color:var(--gold);color:#7a5010}
+  .sb{display:inline-block;font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px}
+  .sb-h{background:#e8f0ec;color:var(--accent)}
+  .sb-m{background:#fdf0e7;color:var(--warn)}
+  .sb-l{background:#fdecea;color:#a33030}
+  .dots{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-faint);padding:6px 0}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--ink-faint);animation:blink 1.2s ease-in-out infinite}
+  .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+  .hidden{display:none!important}
+  .err{font-size:13px;color:#a33030;padding:6px 0}
+  .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+  .ss{background:var(--paper-warm);border-radius:var(--radius);padding:1rem;text-align:center}
+  .sn{font-family:'DM Serif Display',serif;font-size:28px;color:var(--ink)}
+  .sl{font-size:12px;color:var(--ink-faint);margin-top:2px}
+  .tier-badge{display:inline-block;font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px}
+  .tb-free{background:var(--paper-warm);color:var(--ink-muted)}
+  .tb-pro{background:var(--accent-light);color:var(--accent)}
+  .tb-proplus{background:var(--gold-light);color:var(--gold)}
+  .lock-msg{margin-top:8px;padding:10px 14px;border-radius:var(--radius);font-size:12px;display:flex;align-items:center;gap:8px}
+  .lock-pro{background:var(--accent-light);color:#1e4a35}
+  .lock-gold{background:var(--gold-light);color:#7a5010}
+  .rec-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:13px;background:var(--gold-light);border:1px solid var(--gold);color:var(--gold);border-radius:30px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .15s}
+  .rec-btn.recording{background:#fdecea;border-color:#e24b4a;color:#a33030;animation:pulse-rec 1s ease-in-out infinite}
+  @keyframes pulse-rec{0%,100%{opacity:1}50%{opacity:.7}}
+  .rec-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .tone-card{margin-top:10px;padding:14px;border-radius:var(--radius);border:1px solid var(--gold);background:var(--gold-light)}
+  .tone-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .tone-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(184,124,26,0.15);gap:10px}
+  .tone-row:last-child{border-bottom:none}
+  .tone-label{font-size:12px;color:var(--ink-muted);flex-shrink:0}
+  .tone-val{font-size:12px;font-weight:500;text-align:right}
+  .tv-h{color:var(--accent)}.tv-m{color:var(--warn)}.tv-l{color:#a33030}
+  .modal-overlay{position:fixed;inset:0;background:rgba(14,14,13,0.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal{background:var(--paper-card);border-radius:var(--radius-lg);padding:36px 32px;max-width:420px;width:100%}
+  .modal h2{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:8px}
+  .modal p{font-size:14px;color:var(--ink-muted);margin-bottom:24px}
+  .modal-tabs{display:flex;margin-bottom:24px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .modal-tab{flex:1;padding:9px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;background:transparent;color:var(--ink-muted);transition:all .15s}
+  .modal-tab.active{background:var(--ink);color:var(--paper)}
+  .modal label{font-size:12px;font-weight:500;color:var(--ink-muted);display:block;margin-bottom:6px;margin-top:14px}
+  .paywall{background:var(--paper-card);border-radius:var(--radius-lg);padding:36px 32px;max-width:500px;width:100%}
+  .paywall h2{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:10px}
+  .paywall p{font-size:14px;color:var(--ink-muted);margin-bottom:24px}
+  .pw-plans{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+  .pw-plan{border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+  .pw-plan.pw-featured{border:2px solid var(--accent)}
+  .pw-plan.pw-gold{border:2px solid var(--gold)}
+  .pw-price{font-family:'DM Serif Display',serif;font-size:28px;margin:8px 0 4px}
+  .pw-features{list-style:none;font-size:12px;color:var(--ink-muted);text-align:left;margin-bottom:14px}
+  .pw-features li{padding:3px 0;display:flex;gap:6px}
+  footer{padding:40px 5vw;text-align:center;border-top:1px solid var(--border)}
+  footer p{font-size:13px;color:var(--ink-faint)}
+  footer a{color:var(--ink-muted);text-decoration:none}
 </style>
 </head>
 <body>
@@ -142,6 +159,7 @@
   <a class="nav-logo" href="#">Interview<span>Ace</span></a>
   <div class="nav-right">
     <span class="nav-user hidden" id="nav-email"></span>
+    <span class="tier-badge hidden" id="nav-tier"></span>
     <button class="nav-btn nav-btn-outline hidden" id="nav-logout" onclick="logout()">Log out</button>
     <button class="nav-btn nav-btn-fill hidden" id="nav-login-btn" onclick="showAuth()">Log in</button>
     <a href="#pricing" class="nav-btn nav-btn-outline">Pricing</a>
@@ -158,43 +176,56 @@
       <button class="modal-tab" id="tab-login" onclick="switchTab('login')">Log in</button>
     </div>
     <label>Email</label>
-    <input type="email" class="app-input" id="auth-email" placeholder="you@email.com">
+    <input type="email" class="inp" id="auth-email" placeholder="you@email.com">
     <label>Password</label>
-    <input type="password" class="app-input" id="auth-password" placeholder="Min 6 characters">
-    <div style="margin-top:18px;">
-      <button class="app-btn app-btn-primary" style="width:100%" id="auth-submit-btn" onclick="submitAuth()">Create free account</button>
+    <input type="password" class="inp" id="auth-password" placeholder="Min 6 characters">
+    <div style="margin-top:18px">
+      <button class="abtn abtn-dark" style="width:100%" id="auth-submit-btn" onclick="submitAuth()">Create free account</button>
     </div>
-    <div id="auth-error" class="error-msg hidden"></div>
-    <div id="auth-loading" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Please wait...</span></div>
-    <div class="modal-footer">By continuing you agree to our terms of service</div>
+    <div id="auth-error" class="err hidden"></div>
+    <div id="auth-loading" class="dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Please wait...</span></div>
+    <div style="font-size:12px;color:var(--ink-faint);text-align:center;margin-top:14px">By continuing you agree to our terms of service</div>
   </div>
 </div>
 
 <!-- PAYWALL MODAL -->
 <div class="modal-overlay hidden" id="paywall-modal">
   <div class="paywall">
-    <div style="font-size:32px;margin-bottom:12px">🎯</div>
-    <h2>You've used your free session</h2>
-    <p>Upgrade to Pro for unlimited interview practice, deeper feedback, and full coaching reports.</p>
-    <div class="paywall-price">$12 <span>/ month</span></div>
-    <ul class="paywall-features" style="margin-top:16px;">
-      <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Unlimited practice sessions</li>
-      <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>10 questions per session</li>
-      <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Detailed feedback + rewrites</li>
-      <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Overall score and coaching summary</li>
-    </ul>
-    <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="btn-plan btn-plan-fill" style="display:block;padding:14px;font-size:15px;border-radius:30px;background:#2a5c45;color:white;text-decoration:none;text-align:center;font-family:'DM Sans',sans-serif;font-weight:500;">Upgrade to Pro →</a>
-    <div style="margin-top:12px;">
-      <button onclick="closePaywall()" style="background:none;border:none;font-size:13px;color:var(--ink-faint);cursor:pointer;font-family:'DM Sans',sans-serif;">Maybe later</button>
+    <h2>Unlock unlimited practice</h2>
+    <p>You've used your free session. Upgrade to keep practising and land your next role.</p>
+    <div class="pw-plans">
+      <div class="pw-plan pw-featured">
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)">Pro</div>
+        <div class="pw-price">$12<span style="font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink-muted)">/mo</span></div>
+        <ul class="pw-features">
+          <li><span style="color:var(--accent)">✓</span>Unlimited sessions</li>
+          <li><span style="color:var(--accent)">✓</span>10 questions</li>
+          <li><span style="color:var(--accent)">✓</span>STAR feedback</li>
+          <li><span style="color:var(--accent)">✓</span>Keyword tips</li>
+        </ul>
+        <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="btn-plan btn-green" style="font-size:13px;padding:10px">Get Pro →</a>
+      </div>
+      <div class="pw-plan pw-gold">
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--gold)">Pro+ Audio</div>
+        <div class="pw-price" style="color:var(--gold)">$15<span style="font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink-muted)">/mo</span></div>
+        <ul class="pw-features">
+          <li><span style="color:var(--gold)">✓</span>Everything in Pro</li>
+          <li><span style="color:var(--gold)">✓</span>Speak your answers</li>
+          <li><span style="color:var(--gold)">✓</span>AI talks back</li>
+          <li><span style="color:var(--gold)">✓</span>Tone & confidence</li>
+        </ul>
+        <a href="https://hasinjavaid.gumroad.com/l/kyfuf" target="_blank" class="btn-plan btn-gold" style="font-size:13px;padding:10px">Get Pro+ →</a>
+      </div>
     </div>
-    <div style="font-size:12px;color:var(--ink-faint);margin-top:8px;">Use code <strong>PRODUCTHUNT50</strong> for 50% off your first month</div>
+    <div style="font-size:12px;color:var(--ink-faint);text-align:center;margin-bottom:8px">Use code <strong>PRODUCTHUNT50</strong> for 50% off first month</div>
+    <div style="text-align:center"><button onclick="closePaywall()" style="background:none;border:none;font-size:13px;color:var(--ink-faint);cursor:pointer;font-family:'DM Sans',sans-serif">Maybe later</button></div>
   </div>
 </div>
 
 <section class="hero">
   <div class="hero-tag">AI-powered interview prep</div>
   <h1>Ace your next interview <em>with confidence</em></h1>
-  <p>Paste any job description. Get tailored questions, answer them, and receive instant AI coaching feedback.</p>
+  <p>Paste any job description. Get tailored questions, answer them, and receive instant AI coaching — even speak your answers for tone analysis.</p>
   <div class="hero-btns">
     <a href="#try" class="btn-hero btn-hero-primary">Practice free now</a>
     <a href="#pricing" class="btn-hero btn-hero-secondary">See pricing</a>
@@ -205,10 +236,10 @@
   <div class="section-label">How it works</div>
   <h2>From job description to job offer</h2>
   <div class="steps">
-    <div class="step"><div class="step-num">1</div><h3>Paste the JD</h3><p>Drop in the job description from any company. Our AI reads it and understands what matters for that role.</p></div>
-    <div class="step"><div class="step-num">2</div><h3>Get questions</h3><p>Receive 5 tailored interview questions — behavioral, technical, and situational — specific to that role.</p></div>
-    <div class="step"><div class="step-num">3</div><h3>Answer & improve</h3><p>Type your answers and get instant AI feedback: what worked, what to improve, and a better version.</p></div>
-    <div class="step"><div class="step-num">4</div><h3>Score & repeat</h3><p>Get an overall score, your top strength, key gap, and a concrete next step.</p></div>
+    <div class="step"><div class="step-num">1</div><h3>Paste the JD</h3><p>Drop in any job description. AI reads it and tailors everything to that specific role.</p></div>
+    <div class="step"><div class="step-num">2</div><h3>Get questions</h3><p>5–10 tailored questions — behavioral, technical, situational — matched to role and level.</p></div>
+    <div class="step"><div class="step-num">3</div><h3>Answer & improve</h3><p>Type or speak your answers. Get instant feedback, STAR rewrites, and keyword tips.</p></div>
+    <div class="step"><div class="step-num">4</div><h3>Hear AI coach you</h3><p>Pro+ users get spoken feedback — AI talks back, analyses your tone and confidence in real time.</p></div>
   </div>
 </section>
 
@@ -216,25 +247,28 @@
   <div class="app-inner">
     <div class="app-header">
       <div class="section-label">Try it now</div>
-      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,38px);margin-bottom:10px;">Practice your interview right now</h2>
-      <p style="color:var(--ink-muted);font-size:15px;">Sign up free — 1 full session on us.</p>
+      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,38px);margin-bottom:10px">Practice your interview right now</h2>
+      <p style="color:var(--ink-muted);font-size:15px">1 free session included — no credit card needed</p>
     </div>
 
-    <div id="app-login-prompt" class="app-card" style="text-align:center;padding:40px;">
-      <div style="font-size:15px;font-weight:500;margin-bottom:8px;">Create a free account to start</div>
-      <div style="font-size:14px;color:var(--ink-muted);margin-bottom:20px;">1 free session included — no credit card needed</div>
-      <button class="app-btn app-btn-primary" onclick="showAuth()">Sign up free</button>
+    <div id="app-login-prompt" class="app-card" style="text-align:center;padding:40px">
+      <div style="font-size:15px;font-weight:500;margin-bottom:8px">Create a free account to start</div>
+      <div style="font-size:14px;color:var(--ink-muted);margin-bottom:20px">1 free session — no credit card needed</div>
+      <button class="abtn abtn-dark" onclick="showAuth()">Sign up free</button>
     </div>
 
     <div id="app-setup" class="app-card hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-        <div id="session-info" class="session-badge"></div>
-        <button class="app-btn-danger" onclick="logout()">Log out</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="session-badge" class="tier-badge"></span>
+          <span id="session-info" style="font-size:13px;color:var(--ink-muted)"></span>
+        </div>
+        <button class="abtn-danger" onclick="logout()">Log out</button>
       </div>
-      <div class="app-step-label">Paste job description</div>
-      <textarea class="app-input" id="jd-input" rows="5" placeholder="Paste the full job description here...&#10;&#10;e.g. We are looking for a Senior Product Manager to lead our AI product team..."></textarea>
-      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center;">
-        <select class="app-select" id="role-select">
+      <div class="lbl">Job description</div>
+      <textarea class="inp" id="jd-input" rows="5" placeholder="Paste the full job description here...&#10;&#10;e.g. We are looking for a Senior Product Manager to lead our AI team..."></textarea>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center">
+        <select class="sel" id="role-select">
           <option value="Product Manager">Product Manager</option>
           <option value="Software Engineer">Software Engineer</option>
           <option value="Data Analyst">Data Analyst</option>
@@ -242,39 +276,39 @@
           <option value="UX Designer">UX Designer</option>
           <option value="Marketing Manager">Marketing Manager</option>
         </select>
-        <select class="app-select" id="difficulty">
+        <select class="sel" id="difficulty">
           <option value="entry-level">Entry level</option>
           <option value="mid-level" selected>Mid level</option>
           <option value="senior">Senior</option>
         </select>
-        <button class="app-btn app-btn-primary" onclick="generateQuestions()">Generate questions →</button>
+        <button class="abtn abtn-dark" onclick="generateQuestions()">Generate questions →</button>
       </div>
-      <div id="setup-loading" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Generating your questions...</span></div>
-      <div id="setup-error" class="error-msg hidden"></div>
+      <div id="setup-loading" class="dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Generating your questions...</span></div>
+      <div id="setup-error" class="err hidden"></div>
     </div>
 
     <div id="app-interview" class="hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-        <span style="font-size:15px;font-weight:500;">Your interview questions</span>
-        <span id="progress-text" style="font-size:13px;color:var(--ink-faint);"></span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <span style="font-size:15px;font-weight:500">Your questions</span>
+        <span id="progress-text" style="font-size:13px;color:var(--ink-faint)"></span>
       </div>
       <div id="questions-container"></div>
-      <button class="app-btn app-btn-primary" style="margin-top:4px;" onclick="getOverallFeedback()">Get overall score →</button>
+      <button class="abtn abtn-dark" style="margin-top:4px" onclick="getOverallFeedback()">Get overall score →</button>
     </div>
 
     <div id="app-summary" class="hidden">
       <div class="app-card">
-        <div style="font-size:15px;font-weight:500;margin-bottom:18px;">Your interview report</div>
-        <div class="summary-grid">
-          <div class="summary-stat"><div class="stat-num" id="score-total">—</div><div class="stat-label">Overall</div></div>
-          <div class="summary-stat"><div class="stat-num" id="score-answered">—</div><div class="stat-label">Answered</div></div>
-          <div class="summary-stat"><div class="stat-num" id="score-strong">—</div><div class="stat-label">Strong</div></div>
+        <div style="font-size:15px;font-weight:500;margin-bottom:18px">Your interview report</div>
+        <div class="sg">
+          <div class="ss"><div class="sn" id="sc-tot">—</div><div class="sl">Overall</div></div>
+          <div class="ss"><div class="sn" id="sc-ans">—</div><div class="sl">Answered</div></div>
+          <div class="ss"><div class="sn" id="sc-str">—</div><div class="sl">Strong</div></div>
         </div>
-        <div id="summary-loading" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analysing...</span></div>
-        <div id="summary-feedback"></div>
-        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="app-btn app-btn-sm" onclick="restartApp()">Start over</button>
-          <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="app-btn app-btn-primary" style="text-decoration:none;">Unlock unlimited →</a>
+        <div id="sum-loading" class="dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analysing...</span></div>
+        <div id="sum-feedback"></div>
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="abtn-sm" onclick="restartApp()">Start over</button>
+          <button class="abtn abtn-dark" onclick="showPaywall()">Unlock unlimited →</button>
         </div>
       </div>
     </div>
@@ -283,79 +317,115 @@
 
 <section class="section" id="pricing">
   <div class="section-label">Pricing</div>
-  <h2>Simple, honest pricing</h2>
+  <h2>Three tiers, one goal — land the job</h2>
   <div class="pricing-grid">
     <div class="plan">
       <div class="plan-name">Free</div>
       <div class="plan-price">$0 <span>/ forever</span></div>
       <div class="plan-desc">Try it out, no card needed.</div>
       <ul class="plan-features">
-        <li><span class="check">✓</span>1 free practice session</li>
-        <li><span class="check">✓</span>5 tailored questions</li>
-        <li><span class="check">✓</span>Per-answer feedback</li>
-        <li><span class="check">✓</span>Overall score</li>
+        <li><span class="check check-green">✓</span>1 practice session</li>
+        <li><span class="check check-green">✓</span>5 tailored questions</li>
+        <li><span class="check check-green">✓</span>Basic feedback</li>
+        <li><span class="check check-green">✓</span>Overall score</li>
       </ul>
-      <a href="#try" class="btn-plan btn-plan-outline">Start free</a>
+      <a href="#try" class="btn-plan btn-outline">Start free</a>
     </div>
     <div class="plan featured">
-      <div class="plan-badge">Most popular</div>
+      <div class="plan-badge badge-green">Most popular</div>
       <div class="plan-name">Pro</div>
       <div class="plan-price">$12 <span>/ month</span></div>
       <div class="plan-desc">For serious job seekers.</div>
       <ul class="plan-features">
-        <li><span class="check">✓</span>Unlimited sessions</li>
-        <li><span class="check">✓</span>10 questions per session</li>
-        <li><span class="check">✓</span>Detailed feedback + rewrites</li>
-        <li><span class="check">✓</span>Priority support</li>
+        <li><span class="check check-green">✓</span>Unlimited sessions</li>
+        <li><span class="check check-green">✓</span>10 questions per session</li>
+        <li><span class="check check-green">✓</span>Detailed feedback + STAR rewrites</li>
+        <li><span class="check check-green">✓</span>Keyword suggestions</li>
+        <li><span class="check check-green">✓</span>Priority support</li>
       </ul>
-      <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="btn-plan btn-plan-fill">Get Pro →</a>
+      <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="btn-plan btn-green">Get Pro →</a>
+    </div>
+    <div class="plan gold">
+      <div class="plan-badge badge-gold">Best experience</div>
+      <div class="plan-name">Pro+ Audio</div>
+      <div class="plan-price" style="color:var(--gold)">$15 <span>/ month</span></div>
+      <div class="plan-desc">Everything in Pro, plus full voice interview.</div>
+      <ul class="plan-features">
+        <li><span class="check check-gold">✓</span>Everything in Pro</li>
+        <li><span class="check check-gold">✓</span>Speak your answers (mic)</li>
+        <li><span class="check check-gold">✓</span>AI reads questions aloud</li>
+        <li><span class="check check-gold">✓</span>AI talks back with coaching</li>
+        <li><span class="check check-gold">✓</span>Tone & confidence analysis</li>
+        <li><span class="check check-gold">✓</span>Filler word detection</li>
+      </ul>
+      <a href="https://hasinjavaid.gumroad.com/l/kyfuf" target="_blank" class="btn-plan btn-gold">Get Pro+ →</a>
     </div>
   </div>
 </section>
 
 <footer>
-  <p style="font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:8px;">Interview<span style="color:var(--accent);">Ace</span></p>
+  <p style="font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:8px">Interview<span style="color:var(--accent)">Ace</span></p>
   <p>Built with AI. Designed for job seekers. &nbsp;·&nbsp; <a href="mailto:hello@interviewace.ai">Contact</a></p>
 </footer>
 
 <script>
-const SUPABASE_URL = "https://ydmdhcmkmyhpldckbloe.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkbWRoY21rbXlocGxkY2tibG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNTY1ODUsImV4cCI6MjA4OTkzMjU4NX0.xOjojWNfBj39FbbPtDhUI1z7vbeQaHAXnwUp9MRpqN8";
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var SUPABASE_URL = "https://ydmdhcmkmyhpldckbloe.supabase.co";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkbWRoY21rbXlocGxkY2tibG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNTY1ODUsImV4cCI6MjA4OTkzMjU4NX0.xOjojWNfBj39FbbPtDhUI1z7vbeQaHAXnwUp9MRpqN8";
+var { createClient } = supabase;
+var sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-var questions = [], answers = {}, feedbacks = {}, currentSession = null, authTab = "signup", userIsPro = false;
+var questions = [], answers = {}, feedbacks = {};
+var currentSession = null, authTab = "signup";
+var userTier = "free", userIsPro = false, userIsProPlus = false;
+var recognizers = {}, isRecording = {};
+var speechSynth = window.speechSynthesis;
 
 async function init() {
-  const { data: { session } } = await sb.auth.getSession();
+  var { data: { session } } = await sb.auth.getSession();
   if (session) await onLogin(session);
   else showLoggedOut();
 }
 
 async function onLogin(session) {
   currentSession = session;
-  const res = await fetch("/api/me", { headers: { Authorization: "Bearer " + session.access_token } });
-  const profile = await res.json();
+  var res = await fetch("/api/me", { headers: { Authorization: "Bearer " + session.access_token } });
+  var profile = await res.json();
+  userTier = profile.tier || "free";
+  userIsPro = profile.isPro || false;
+  userIsProPlus = profile.isProPlus || false;
+
   document.getElementById("nav-email").textContent = profile.email;
   document.getElementById("nav-email").classList.remove("hidden");
   document.getElementById("nav-logout").classList.remove("hidden");
   document.getElementById("nav-login-btn").classList.add("hidden");
+  document.getElementById("auth-modal").classList.add("hidden");
   document.getElementById("app-login-prompt").classList.add("hidden");
   document.getElementById("app-setup").classList.remove("hidden");
-  const badge = document.getElementById("session-info");
-  userIsPro = profile.is_pro || false;
-  if (profile.is_pro) {
-    badge.textContent = "Pro — unlimited sessions";
-    badge.classList.add("pro-badge");
+
+  var tb = document.getElementById("nav-tier");
+  var sb2 = document.getElementById("session-badge");
+  var si = document.getElementById("session-info");
+
+  if (userIsProPlus) {
+    tb.textContent = "Pro+ Audio"; tb.className = "tier-badge tb-proplus";
+    sb2.textContent = "Pro+ Audio"; sb2.className = "tier-badge tb-proplus";
+    si.textContent = "Unlimited sessions — full audio enabled";
+  } else if (userIsPro) {
+    tb.textContent = "Pro"; tb.className = "tier-badge tb-pro";
+    sb2.textContent = "Pro"; sb2.className = "tier-badge tb-pro";
+    si.textContent = "Unlimited sessions";
   } else {
-    const remaining = Math.max(0, 1 - profile.sessions_used);
-    badge.textContent = remaining > 0 ? `${remaining} free session remaining` : "Free session used — upgrade for more";
+    tb.textContent = "Free"; tb.className = "tier-badge tb-free";
+    sb2.textContent = "Free"; sb2.className = "tier-badge tb-free";
+    var rem = Math.max(0, 1 - (profile.sessions_used || 0));
+    si.textContent = rem > 0 ? "1 free session remaining" : "Free session used — upgrade for more";
   }
-  document.getElementById("auth-modal").classList.add("hidden");
+  tb.classList.remove("hidden");
 }
 
 function showLoggedOut() {
   document.getElementById("nav-email").classList.add("hidden");
+  document.getElementById("nav-tier").classList.add("hidden");
   document.getElementById("nav-logout").classList.add("hidden");
   document.getElementById("nav-login-btn").classList.remove("hidden");
   document.getElementById("app-login-prompt").classList.remove("hidden");
@@ -363,6 +433,8 @@ function showLoggedOut() {
 }
 
 function showAuth() { document.getElementById("auth-modal").classList.remove("hidden"); }
+function showPaywall() { document.getElementById("paywall-modal").classList.remove("hidden"); }
+function closePaywall() { document.getElementById("paywall-modal").classList.add("hidden"); }
 
 function switchTab(tab) {
   authTab = tab;
@@ -373,23 +445,19 @@ function switchTab(tab) {
 }
 
 async function submitAuth() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
+  var email = document.getElementById("auth-email").value.trim();
+  var password = document.getElementById("auth-password").value;
   if (!email || !password) { showErr("auth-error", "Please enter email and password."); return; }
   toggleLoad("auth-loading", true); clearErr("auth-error");
   try {
-    let result;
+    var result;
     if (authTab === "signup") {
       result = await sb.auth.signUp({ email, password });
       if (result.error) throw result.error;
-      if (result.data.user) {
-        await fetch("/api/init-profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + result.data.session?.access_token },
-        });
-        if (result.data.session) await onLogin(result.data.session);
-        else showErr("auth-error", "Check your email to confirm your account, then log in.");
-      }
+      if (result.data.session) {
+        await fetch("/api/init-profile", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + result.data.session.access_token } });
+        await onLogin(result.data.session);
+      } else { showErr("auth-error", "Check your email to confirm, then log in."); }
     } else {
       result = await sb.auth.signInWithPassword({ email, password });
       if (result.error) throw result.error;
@@ -401,149 +469,278 @@ async function submitAuth() {
 
 async function logout() {
   await sb.auth.signOut();
-  currentSession = null;
-  showLoggedOut();
-  restartApp();
+  currentSession = null; userTier = "free"; userIsPro = false; userIsProPlus = false;
+  showLoggedOut(); restartApp();
 }
 
-async function callAI(system, user, countSession = false) {
+async function callAI(system, user, countSession) {
   if (!currentSession) { showAuth(); throw new Error("Not logged in"); }
-  const res = await fetch("/api/chat", {
+  var res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": "Bearer " + currentSession.access_token },
-    body: JSON.stringify({ system, user, countSession })
+    body: JSON.stringify({ system, user, countSession: !!countSession })
   });
-  const data = await res.json();
+  var data = await res.json();
   if (res.status === 403 && data.error === "free_limit_reached") { showPaywall(); throw new Error("free_limit_reached"); }
   if (!res.ok) throw new Error(data.error || "Server error");
   return data;
 }
 
-function showPaywall() { document.getElementById("paywall-modal").classList.remove("hidden"); }
-function closePaywall() { document.getElementById("paywall-modal").classList.add("hidden"); }
-
 async function generateQuestions() {
-  const jd = document.getElementById("jd-input").value.trim();
-  const role = document.getElementById("role-select").value;
-  const level = document.getElementById("difficulty").value;
+  var jd = document.getElementById("jd-input").value.trim();
+  var role = document.getElementById("role-select").value;
+  var level = document.getElementById("difficulty").value;
   if (!jd) { showErr("setup-error", "Please paste a job description first."); return; }
   toggleLoad("setup-loading", true); clearErr("setup-error");
   try {
-    const isPro = document.getElementById("session-info").classList.contains("pro-badge");
-    const numQ = isPro ? 10 : 5;
-    const result = await callAI(
-      `You are an expert interviewer. Return ONLY valid JSON, no markdown. Format: {"questions":[{"id":1,"text":"...","type":"behavioral|technical|situational","tip":"short tip"}]}`,
-      `Generate ${numQ} interview questions for a ${level} ${role}. Mix types evenly.\n\nJD: ${jd.slice(0,1500)}`,
+    var numQ = userIsPro ? 10 : 5;
+    var result = await callAI(
+      "You are an expert interviewer. Return ONLY valid JSON, no markdown. Format: {\"questions\":[{\"id\":1,\"text\":\"...\",\"type\":\"behavioral|technical|situational\",\"tip\":\"short tip\"}]}",
+      "Generate " + numQ + " interview questions for a " + level + " " + role + ". Mix types evenly.\n\nJD: " + jd.slice(0, 1500),
       true
     );
-    questions = JSON.parse(result.text.replace(/```json|```/g,"").trim()).questions;
+    questions = JSON.parse(result.text.replace(/```json|```/g, "").trim()).questions;
     renderQuestions();
     document.getElementById("app-setup").classList.add("hidden");
     document.getElementById("app-interview").classList.remove("hidden");
-    const badge = document.getElementById("session-info");
-    if (!result.is_pro) badge.textContent = "Free session used — upgrade for more";
+    if (!userIsPro) document.getElementById("session-info").textContent = "Free session used — upgrade for more";
   } catch(e) { if (e.message !== "free_limit_reached") showErr("setup-error", e.message || "Something went wrong."); }
   toggleLoad("setup-loading", false);
 }
 
 function renderQuestions() {
-  const c = document.getElementById("questions-container"); c.innerHTML = ""; updateProgress();
-  questions.forEach(q => {
-    const bc = q.type === "behavioral" ? "badge-behavioral" : q.type === "technical" ? "badge-technical" : "badge-situational";
-    const d = document.createElement("div"); d.className = "q-card"; d.id = `q-${q.id}`;
-    d.innerHTML = `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;"><div><div style="font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;">Q${q.id} of ${questions.length}</div><div style="font-size:14px;font-weight:500;line-height:1.5;">${q.text}</div></div><span class="q-type-badge ${bc}">${q.type}</span></div><div style="font-size:12px;color:var(--ink-faint);margin-bottom:10px;">Tip: ${q.tip}</div><textarea class="app-input" id="ans-${q.id}" rows="3" placeholder="Type your answer here..." oninput="updateProgress()"></textarea><div style="margin-top:8px;"><button class="app-btn app-btn-sm" onclick="getFeedback(${q.id})">Get feedback →</button></div><div id="fb-load-${q.id}" class="loading-dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analysing...</span></div><div id="fb-${q.id}"></div>`;
+  var c = document.getElementById("questions-container"); c.innerHTML = ""; updateProgress();
+  questions.forEach(function(q) {
+    var bc = q.type === "behavioral" ? "b-beh" : q.type === "technical" ? "b-tec" : "b-sit";
+    var audioBtn = "";
+    if (userIsProPlus) {
+      audioBtn = '<button class="rec-btn" id="rec-btn-' + q.id + '" onclick="toggleRecording(' + q.id + ')"><span class="rec-dot"></span> Speak answer</button>' +
+                 '<button class="abtn-gold" onclick="readQuestion(' + q.id + ')">Hear question</button>';
+    } else if (userIsPro) {
+      audioBtn = '<div class="lock-msg lock-gold">Upgrade to Pro+ Audio to speak answers and hear AI coaching</div>';
+    } else {
+      audioBtn = '<div class="lock-msg lock-pro">Upgrade to Pro for STAR feedback, keywords and detailed analysis</div>';
+    }
+    var d = document.createElement("div"); d.className = "q-card"; d.id = "q-" + q.id;
+    d.innerHTML = '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px">' +
+      '<div><div style="font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px">Q' + q.id + ' of ' + questions.length + '</div>' +
+      '<div style="font-size:14px;font-weight:500;line-height:1.5" id="qtext-' + q.id + '">' + q.text + '</div></div>' +
+      '<span class="q-type-badge ' + bc + '">' + q.type + '</span></div>' +
+      '<div style="font-size:12px;color:var(--ink-faint);margin-bottom:10px">Tip: ' + q.tip + '</div>' +
+      '<textarea class="inp" id="ans-' + q.id + '" rows="3" placeholder="Type your answer here, or use the mic to speak..." oninput="updateProgress()"></textarea>' +
+      '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+      '<button class="abtn-sm" onclick="getFeedback(' + q.id + ')">Get feedback →</button>' + audioBtn + '</div>' +
+      '<div id="rec-status-' + q.id + '" style="font-size:12px;color:var(--ink-faint);margin-top:4px"></div>' +
+      '<div id="fb-load-' + q.id + '" class="dots hidden"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analysing...</span></div>' +
+      '<div id="tone-' + q.id + '"></div>' +
+      '<div id="fb-' + q.id + '"></div>';
     c.appendChild(d);
+    if (userIsProPlus) readQuestion(q.id);
   });
 }
 
+function readQuestion(qid) {
+  speechSynth.cancel();
+  var q = questions.find(function(x) { return x.id === qid; });
+  if (!q) return;
+  var utt = new SpeechSynthesisUtterance("Question " + qid + ": " + q.text);
+  utt.rate = 0.92; utt.pitch = 1; utt.volume = 1;
+  var voices = speechSynth.getVoices();
+  var pref = voices.find(function(v) { return v.name.includes("Google UK English Female") || v.name.includes("Samantha") || v.name.includes("Karen"); });
+  if (pref) utt.voice = pref;
+  speechSynth.speak(utt);
+}
+
+function speakFeedback(text) {
+  speechSynth.cancel();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.rate = 0.9; utt.pitch = 1; utt.volume = 1;
+  var voices = speechSynth.getVoices();
+  var pref = voices.find(function(v) { return v.name.includes("Google UK English Female") || v.name.includes("Samantha") || v.name.includes("Karen"); });
+  if (pref) utt.voice = pref;
+  speechSynth.speak(utt);
+}
+
 function updateProgress() {
-  const n = questions.filter(q => { const el = document.getElementById(`ans-${q.id}`); return el && el.value.trim().length > 10; }).length;
-  document.getElementById("progress-text").textContent = `${n} of ${questions.length} answered`;
+  var n = questions.filter(function(q) { var el = document.getElementById("ans-" + q.id); return el && el.value.trim().length > 10; }).length;
+  document.getElementById("progress-text").textContent = n + " of " + questions.length + " answered";
+}
+
+function toggleRecording(qid) {
+  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+    alert("Speech recognition requires Chrome or Edge browser."); return;
+  }
+  if (isRecording[qid]) { stopRecording(qid); } else { startRecording(qid); }
+}
+
+function startRecording(qid) {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = new SR();
+  rec.continuous = true; rec.interimResults = true; rec.lang = "en-US";
+  recognizers[qid] = rec; isRecording[qid] = true;
+  var btn = document.getElementById("rec-btn-" + qid);
+  var status = document.getElementById("rec-status-" + qid);
+  btn.classList.add("recording");
+  btn.innerHTML = '<span class="rec-dot"></span> Stop recording';
+  status.textContent = "Listening... speak clearly";
+  speechSynth.cancel();
+  var full = "";
+  rec.onresult = function(e) {
+    var interim = "";
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) full += e.results[i][0].transcript + " ";
+      else interim += e.results[i][0].transcript;
+    }
+    document.getElementById("ans-" + qid).value = full + interim;
+    updateProgress();
+  };
+  rec.onerror = function(e) { status.textContent = "Error: " + e.error + ". Try again."; stopRecording(qid); };
+  rec.onend = function() {
+    if (isRecording[qid]) {
+      var finalText = document.getElementById("ans-" + qid).value.trim();
+      stopRecording(qid);
+      if (finalText.length > 10) {
+        status.textContent = "Got it! Analysing your tone and delivery...";
+        analyseTone(qid, finalText);
+      }
+    }
+  };
+  rec.start();
+}
+
+function stopRecording(qid) {
+  isRecording[qid] = false;
+  if (recognizers[qid]) { recognizers[qid].stop(); recognizers[qid] = null; }
+  var btn = document.getElementById("rec-btn-" + qid);
+  if (btn) { btn.classList.remove("recording"); btn.innerHTML = '<span class="rec-dot"></span> Speak answer'; }
+}
+
+async function analyseTone(qid, transcript) {
+  var status = document.getElementById("rec-status-" + qid);
+  var q = questions.find(function(x) { return x.id === qid; });
+  try {
+    var result = await callAI(
+      'You are an expert communication coach. Return ONLY valid JSON, no markdown: {"confidence":"high|mid|low","confidenceNote":"one sentence","pace":"too fast|good|too slow","paceNote":"one sentence","fillerWords":["um","uh"],"fillerCount":0,"tone":"nervous|neutral|assertive|enthusiastic","toneNote":"one sentence","clarity":"high|mid|low","overallDelivery":"high|mid|low","spokenCoaching":"2-3 sentence spoken coaching message telling them specifically what to improve and how, in a warm encouraging coach voice","topTip":"single most impactful tip"}',
+      'Analyse the spoken delivery of this interview answer.\nQuestion: "' + q.text + '"\nSpoken answer: ' + transcript
+    );
+    var tone = JSON.parse(result.text.replace(/```json|```/g, "").trim());
+    var cC = tone.confidence === "high" ? "tv-h" : tone.confidence === "mid" ? "tv-m" : "tv-l";
+    var oC = tone.overallDelivery === "high" ? "tv-h" : tone.overallDelivery === "mid" ? "tv-m" : "tv-l";
+    var fillers = tone.fillerWords && tone.fillerWords.length ? tone.fillerWords.join(", ") : "None detected";
+    document.getElementById("tone-" + qid).innerHTML =
+      '<div class="tone-card">' +
+        '<div class="tone-title">Tone & delivery analysis (Pro+ Audio)</div>' +
+        '<div class="tone-row"><span class="tone-label">Confidence</span><span class="tone-val ' + cC + '">' + tone.confidence.toUpperCase() + ' — ' + tone.confidenceNote + '</span></div>' +
+        '<div class="tone-row"><span class="tone-label">Pace</span><span class="tone-val ' + (tone.pace === "good" ? "tv-h" : "tv-m") + '">' + tone.pace + ' — ' + tone.paceNote + '</span></div>' +
+        '<div class="tone-row"><span class="tone-label">Filler words</span><span class="tone-val ' + (tone.fillerCount > 3 ? "tv-l" : tone.fillerCount > 0 ? "tv-m" : "tv-h") + '">' + fillers + ' (' + tone.fillerCount + ' detected)</span></div>' +
+        '<div class="tone-row"><span class="tone-label">Tone</span><span class="tone-val ' + (tone.tone === "assertive" || tone.tone === "enthusiastic" ? "tv-h" : "tv-m") + '">' + tone.tone + ' — ' + tone.toneNote + '</span></div>' +
+        '<div class="tone-row"><span class="tone-label">Overall delivery</span><span class="tone-val ' + oC + '">' + tone.overallDelivery.toUpperCase() + '</span></div>' +
+        '<div style="margin-top:10px;padding:10px 12px;background:var(--accent-light);border-radius:var(--radius);font-size:13px;color:#1e4a35">' +
+          '<strong>AI coach says:</strong> ' + tone.spokenCoaching +
+          '<button onclick="speakFeedback(\'' + tone.spokenCoaching.replace(/'/g, "\\'") + '\')" style="margin-left:8px;background:var(--accent);color:white;border:none;border-radius:20px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:\'DM Sans\',sans-serif">Hear this</button>' +
+        '</div>' +
+        '<div style="margin-top:6px;font-size:12px;color:var(--gold)"><strong>Top tip:</strong> ' + tone.topTip + '</div>' +
+      '</div>';
+    status.textContent = "Tone analysis complete. Now click Get feedback for content analysis.";
+    speakFeedback(tone.spokenCoaching);
+  } catch(e) { status.textContent = "Could not analyse tone. Try again."; }
 }
 
 async function getFeedback(qid) {
-  const ans = document.getElementById(`ans-${qid}`).value.trim();
+  var ans = document.getElementById("ans-" + qid).value.trim();
   if (!ans) return;
-  const q = questions.find(x => x.id === qid);
-  toggleLoad(`fb-load-${qid}`, true);
+  var q = questions.find(function(x) { return x.id === qid; });
+  toggleLoad("fb-load-" + qid, true);
   try {
-    let systemPrompt, result2, fb, html;
+    var systemPrompt, result, fb, html;
     if (userIsPro) {
-      systemPrompt = `You are an expert interview coach. Return ONLY valid JSON, no markdown: {"score":"high|mid|low","strong":"2-3 sentences on specific strengths with examples from their answer","improve":"2-3 concrete suggestions with specific language to use","rewritten":"a full polished answer in 4-6 sentences using the STAR method","starBreakdown":{"situation":"what situation context they should set","task":"what task/challenge to mention","action":"specific actions to highlight","result":"what results/impact to emphasize"},"keywordsToAdd":"3-4 industry keywords they should include"}`;
-      result2 = await callAI(systemPrompt, `Question: ${q.text}
-Answer: ${ans}`);
-      fb = JSON.parse(result2.text.replace(/```json|```/g,"").trim());
+      systemPrompt = 'You are an expert interview coach. Return ONLY valid JSON, no markdown: {"score":"high|mid|low","strong":"2-3 sentences on specific strengths","improve":"2-3 concrete suggestions with specific language","rewritten":"full polished 4-6 sentence STAR answer","starBreakdown":{"situation":"context to set","task":"challenge to mention","action":"actions to highlight","result":"impact to emphasize"},"keywordsToAdd":"3-4 keywords to include"}';
+      result = await callAI(systemPrompt, "Question: " + q.text + "\nAnswer: " + ans);
+      fb = JSON.parse(result.text.replace(/```json|```/g, "").trim());
       feedbacks[qid] = fb; answers[qid] = ans;
-      const sc = fb.score === "high" ? "score-high" : fb.score === "mid" ? "score-mid" : "score-low";
-      const sl = fb.score === "high" ? "Strong answer" : fb.score === "mid" ? "Good start" : "Needs work";
-      html = `<div style="margin-top:10px;"><span class="score-badge ${sc}">${sl}</span><span style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;background:#fdf0e7;color:#c05c1a;margin-left:8px;">Pro feedback</span></div>
-        <div class="fb-box fb-good" style="margin-top:8px;"><strong>What worked:</strong> ${fb.strong}</div>
-        <div class="fb-box fb-improve" style="margin-top:6px;"><strong>Improve this:</strong> ${fb.improve}</div>
-        <div class="fb-box fb-neutral" style="margin-top:6px;"><strong>Polished answer (STAR):</strong><br>${fb.rewritten}</div>
-        <div class="fb-box" style="margin-top:6px;background:#e8f0ec;border-left:3px solid #2a5c45;border-radius:0;padding:10px 14px;font-size:13px;">
-          <strong style="color:#1e4a35;">STAR breakdown:</strong><br>
-          <span style="color:#2a5c45;">S:</span> ${fb.starBreakdown?.situation || ""}<br>
-          <span style="color:#2a5c45;">T:</span> ${fb.starBreakdown?.task || ""}<br>
-          <span style="color:#2a5c45;">A:</span> ${fb.starBreakdown?.action || ""}<br>
-          <span style="color:#2a5c45;">R:</span> ${fb.starBreakdown?.result || ""}
-        </div>
-        <div style="margin-top:6px;font-size:12px;color:var(--ink-faint);">Keywords to add: <strong style="color:var(--ink-muted)">${fb.keywordsToAdd || ""}</strong></div>`;
+      var sc = fb.score === "high" ? "sb-h" : fb.score === "mid" ? "sb-m" : "sb-l";
+      var sl = fb.score === "high" ? "Strong answer" : fb.score === "mid" ? "Good start" : "Needs work";
+      var coachText = "Here is your feedback. " + fb.strong + " To improve: " + fb.improve;
+      html = '<div style="margin-top:10px"><span class="sb ' + sc + '">' + sl + '</span>' +
+        (userIsProPlus ? '<button onclick="speakFeedback(\'' + coachText.replace(/'/g, "\\'").slice(0,200) + '\')" style="margin-left:8px;background:var(--gold);color:white;border:none;border-radius:20px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:\'DM Sans\',sans-serif">Hear feedback</button>' : '') +
+        '</div>' +
+        '<div class="fb fb-g" style="margin-top:8px"><strong>What worked:</strong> ' + fb.strong + '</div>' +
+        '<div class="fb fb-w" style="margin-top:6px"><strong>Improve this:</strong> ' + fb.improve + '</div>' +
+        '<div class="fb fb-n" style="margin-top:6px"><strong>Polished STAR answer:</strong><br>' + fb.rewritten + '</div>' +
+        '<div class="fb fb-gold" style="margin-top:6px"><strong>STAR breakdown:</strong><br>' +
+          '<span style="color:var(--gold)">S:</span> ' + (fb.starBreakdown && fb.starBreakdown.situation || "") + '<br>' +
+          '<span style="color:var(--gold)">T:</span> ' + (fb.starBreakdown && fb.starBreakdown.task || "") + '<br>' +
+          '<span style="color:var(--gold)">A:</span> ' + (fb.starBreakdown && fb.starBreakdown.action || "") + '<br>' +
+          '<span style="color:var(--gold)">R:</span> ' + (fb.starBreakdown && fb.starBreakdown.result || "") +
+        '</div>' +
+        '<div style="margin-top:6px;font-size:12px;color:var(--ink-faint)">Keywords to add: <strong>' + (fb.keywordsToAdd || "") + '</strong></div>';
     } else {
-      systemPrompt = `You are an interview coach. Return ONLY valid JSON, no markdown: {"score":"high|mid|low","strong":"one sentence","improve":"one suggestion","rewritten":"better version in 1-2 sentences"}`;
-      result2 = await callAI(systemPrompt, `Question: ${q.text}
-Answer: ${ans}`);
-      fb = JSON.parse(result2.text.replace(/```json|```/g,"").trim());
+      systemPrompt = 'You are an interview coach. Return ONLY valid JSON, no markdown: {"score":"high|mid|low","strong":"one sentence","improve":"one suggestion","rewritten":"better version in 1-2 sentences"}';
+      result = await callAI(systemPrompt, "Question: " + q.text + "\nAnswer: " + ans);
+      fb = JSON.parse(result.text.replace(/```json|```/g, "").trim());
       feedbacks[qid] = fb; answers[qid] = ans;
-      const sc = fb.score === "high" ? "score-high" : fb.score === "mid" ? "score-mid" : "score-low";
-      const sl = fb.score === "high" ? "Strong answer" : fb.score === "mid" ? "Good start" : "Needs work";
-      html = `<div style="margin-top:10px;"><span class="score-badge ${sc}">${sl}</span></div>
-        <div class="fb-box fb-good" style="margin-top:8px;"><strong>What worked:</strong> ${fb.strong}</div>
-        <div class="fb-box fb-improve" style="margin-top:6px;"><strong>Improve:</strong> ${fb.improve}</div>
-        <div class="fb-box fb-neutral" style="margin-top:6px;"><strong>Better version:</strong> ${fb.rewritten}</div>
-        <div style="margin-top:8px;padding:10px 14px;border-radius:8px;background:#fdf0e7;font-size:12px;color:#8a3f10;">Upgrade to Pro for STAR method breakdown, detailed rewrites, and keyword suggestions</div>`;
+      var sc2 = fb.score === "high" ? "sb-h" : fb.score === "mid" ? "sb-m" : "sb-l";
+      var sl2 = fb.score === "high" ? "Strong answer" : fb.score === "mid" ? "Good start" : "Needs work";
+      html = '<div style="margin-top:10px"><span class="sb ' + sc2 + '">' + sl2 + '</span></div>' +
+        '<div class="fb fb-g" style="margin-top:8px"><strong>What worked:</strong> ' + fb.strong + '</div>' +
+        '<div class="fb fb-w" style="margin-top:6px"><strong>Improve:</strong> ' + fb.improve + '</div>' +
+        '<div class="fb fb-n" style="margin-top:6px"><strong>Better version:</strong> ' + fb.rewritten + '</div>' +
+        '<div style="margin-top:8px;padding:10px 14px;border-radius:var(--radius);background:var(--accent-light);font-size:12px;color:#1e4a35">Upgrade to Pro for STAR rewrites, keyword tips, and detailed coaching. Pro+ Audio adds voice analysis.</div>';
     }
-    document.getElementById(`fb-${qid}`).innerHTML = html;
+    document.getElementById("fb-" + qid).innerHTML = html;
+    if (userIsProPlus && fb.strong) speakFeedback("Good work. " + fb.strong + " Here is how to improve: " + fb.improve);
   } catch(e) {}
-  toggleLoad(`fb-load-${qid}`, false); updateProgress();
+  toggleLoad("fb-load-" + qid, false); updateProgress();
 }
 
 async function getOverallFeedback() {
   document.getElementById("app-interview").classList.add("hidden");
   document.getElementById("app-summary").classList.remove("hidden");
-  const answered = Object.keys(answers).length;
-  const strong = Object.values(feedbacks).filter(f => f.score === "high").length;
-  document.getElementById("score-answered").textContent = answered;
-  document.getElementById("score-strong").textContent = strong;
-  if (!answered) { document.getElementById("summary-feedback").textContent = "No answers found."; return; }
-  toggleLoad("summary-loading", true);
+  var answered = Object.keys(answers).length;
+  var strong = Object.values(feedbacks).filter(function(f) { return f.score === "high"; }).length;
+  document.getElementById("sc-ans").textContent = answered;
+  document.getElementById("sc-str").textContent = strong;
+  if (!answered) { document.getElementById("sum-feedback").textContent = "No answers found. Go back and answer the questions."; return; }
+  toggleLoad("sum-loading", true);
   try {
-    const blob = Object.entries(answers).map(([id,a]) => { const q = questions.find(x => x.id == id); return `Q: ${q.text}\nA: ${a}\nScore: ${feedbacks[id]?.score||"unrated"}`; }).join("\n\n");
-    const result3 = await callAI(
-      `You are an interview coach. Return ONLY valid JSON: {"overallScore":"X/10","headline":"one encouraging sentence","topStrength":"...","topGap":"...","nextStep":"one specific action"}`,
-      `Evaluate this mock interview:\n\n${blob}`
+    var blob = Object.entries(answers).map(function(e) {
+      var id = e[0], a = e[1];
+      var q = questions.find(function(x) { return x.id == id; });
+      return "Q: " + q.text + "\nA: " + a + "\nScore: " + (feedbacks[id] && feedbacks[id].score || "unrated");
+    }).join("\n\n");
+    var result = await callAI(
+      'You are an interview coach. Return ONLY valid JSON: {"overallScore":"X/10","headline":"one encouraging sentence","topStrength":"biggest strength","topGap":"biggest gap","nextStep":"one specific action"}',
+      "Evaluate this mock interview:\n\n" + blob
     );
-    const d = JSON.parse(result3.text.replace(/```json|```/g,"").trim());
-    document.getElementById("score-total").textContent = d.overallScore;
-    document.getElementById("summary-feedback").innerHTML = `<p style="font-weight:500;margin-bottom:12px;">${d.headline}</p><div class="fb-box fb-good" style="margin-bottom:8px;"><strong>Top strength:</strong> ${d.topStrength}</div><div class="fb-box fb-improve" style="margin-bottom:8px;"><strong>Key gap:</strong> ${d.topGap}</div><div class="fb-box fb-neutral"><strong>Next step:</strong> ${d.nextStep}</div>`;
-  } catch(e) { document.getElementById("summary-feedback").textContent = "Could not generate summary."; }
-  toggleLoad("summary-loading", false);
+    var d = JSON.parse(result.text.replace(/```json|```/g, "").trim());
+    document.getElementById("sc-tot").textContent = d.overallScore;
+    var sumHTML = '<p style="font-weight:500;margin-bottom:12px">' + d.headline + '</p>' +
+      '<div class="fb fb-g" style="margin-bottom:8px"><strong>Top strength:</strong> ' + d.topStrength + '</div>' +
+      '<div class="fb fb-w" style="margin-bottom:8px"><strong>Key gap:</strong> ' + d.topGap + '</div>' +
+      '<div class="fb fb-n"><strong>Next step:</strong> ' + d.nextStep + '</div>';
+    document.getElementById("sum-feedback").innerHTML = sumHTML;
+    if (userIsProPlus) speakFeedback("Interview complete! " + d.headline + " Your top strength is: " + d.topStrength + " Focus next on: " + d.topGap);
+  } catch(e) { document.getElementById("sum-feedback").textContent = "Could not generate summary."; }
+  toggleLoad("sum-loading", false);
 }
 
 function restartApp() {
   questions = []; answers = {}; feedbacks = {};
-  const jd = document.getElementById("jd-input");
+  speechSynth.cancel();
+  var jd = document.getElementById("jd-input");
   if (jd) jd.value = "";
-  const qc = document.getElementById("questions-container");
+  var qc = document.getElementById("questions-container");
   if (qc) qc.innerHTML = "";
   document.getElementById("app-summary").classList.add("hidden");
   document.getElementById("app-interview").classList.add("hidden");
   if (currentSession) document.getElementById("app-setup").classList.remove("hidden");
 }
 
-function toggleLoad(id, show) { document.getElementById(id).classList.toggle("hidden", !show); }
-function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.remove("hidden"); }
-function clearErr(id) { const el = document.getElementById(id); el.textContent = ""; el.classList.add("hidden"); }
+function toggleLoad(id, show) { var el = document.getElementById(id); if(el) el.classList.toggle("hidden", !show); }
+function showErr(id, msg) { var el = document.getElementById(id); el.textContent = msg; el.classList.remove("hidden"); }
+function clearErr(id) { var el = document.getElementById(id); el.textContent = ""; el.classList.add("hidden"); }
 
+window.speechSynthesis.onvoiceschanged = function() {};
 init();
 </script>
 </body>
