@@ -183,7 +183,7 @@
       <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Detailed feedback + rewrites</li>
       <li><span class="check" style="background:#e8f0ec;color:#2a5c45;">✓</span>Overall score and coaching summary</li>
     </ul>
-    <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="btn-plan btn-plan-fill" style="display:block;padding:14px;font-size:15px;border-radius:30px;background:#2a5c45;color:white;text-decoration:none;text-align:center;font-family:'DM Sans',sans-serif;font-weight:500;">Upgrade to Pro →</a>
+    <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="btn-plan btn-plan-fill" style="display:block;padding:14px;font-size:15px;border-radius:30px;background:#2a5c45;color:white;text-decoration:none;text-align:center;font-family:'DM Sans',sans-serif;font-weight:500;">Upgrade to Pro →</a>
     <div style="margin-top:12px;">
       <button onclick="closePaywall()" style="background:none;border:none;font-size:13px;color:var(--ink-faint);cursor:pointer;font-family:'DM Sans',sans-serif;">Maybe later</button>
     </div>
@@ -274,7 +274,7 @@
         <div id="summary-feedback"></div>
         <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
           <button class="app-btn app-btn-sm" onclick="restartApp()">Start over</button>
-          <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="app-btn app-btn-primary" style="text-decoration:none;">Unlock unlimited →</a>
+          <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="app-btn app-btn-primary" style="text-decoration:none;">Unlock unlimited →</a>
         </div>
       </div>
     </div>
@@ -308,7 +308,7 @@
         <li><span class="check">✓</span>Detailed feedback + rewrites</li>
         <li><span class="check">✓</span>Priority support</li>
       </ul>
-      <a href="https://hasinjavaid.gumroad.com/l/interviewace" target="_blank" class="btn-plan btn-plan-fill">Get Pro →</a>
+      <a href="YOUR_GUMROAD_LINK_HERE" target="_blank" class="btn-plan btn-plan-fill">Get Pro →</a>
     </div>
   </div>
 </section>
@@ -319,12 +319,12 @@
 </footer>
 
 <script>
-const SUPABASE_URL = "https://ydmdhcmkmyhpldckbloe.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkbWRoY21rbXlocGxkY2tibG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNTY1ODUsImV4cCI6MjA4OTkzMjU4NX0.xOjojWNfBj39FbbPtDhUI1z7vbeQaHAXnwUp9MRpqN8";
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let questions = [], answers = {}, feedbacks = {}, currentSession = null, authTab = "signup";
+let questions = [], answers = {}, feedbacks = {}, currentSession = null, authTab = "signup", userIsPro = false;
 
 async function init() {
   const { data: { session } } = await sb.auth.getSession();
@@ -343,6 +343,7 @@ async function onLogin(session) {
   document.getElementById("app-login-prompt").classList.add("hidden");
   document.getElementById("app-setup").classList.remove("hidden");
   const badge = document.getElementById("session-info");
+  userIsPro = profile.is_pro || false;
   if (profile.is_pro) {
     badge.textContent = "Pro — unlimited sessions";
     badge.classList.add("pro-badge");
@@ -415,7 +416,7 @@ async function callAI(system, user, countSession = false) {
   const data = await res.json();
   if (res.status === 403 && data.error === "free_limit_reached") { showPaywall(); throw new Error("free_limit_reached"); }
   if (!res.ok) throw new Error(data.error || "Server error");
-  return data.text;
+  return data;
 }
 
 function showPaywall() { document.getElementById("paywall-modal").classList.remove("hidden"); }
@@ -428,17 +429,19 @@ async function generateQuestions() {
   if (!jd) { showErr("setup-error", "Please paste a job description first."); return; }
   toggleLoad("setup-loading", true); clearErr("setup-error");
   try {
-    const raw = await callAI(
+    const isPro = document.getElementById("session-info").classList.contains("pro-badge");
+    const numQ = isPro ? 10 : 5;
+    const result = await callAI(
       `You are an expert interviewer. Return ONLY valid JSON, no markdown. Format: {"questions":[{"id":1,"text":"...","type":"behavioral|technical|situational","tip":"short tip"}]}`,
-      `Generate 5 interview questions for a ${level} ${role}. Mix types.\n\nJD: ${jd.slice(0,1500)}`,
+      `Generate ${numQ} interview questions for a ${level} ${role}. Mix types evenly.\n\nJD: ${jd.slice(0,1500)}`,
       true
     );
-    questions = JSON.parse(raw.replace(/```json|```/g,"").trim()).questions;
+    questions = JSON.parse(result.text.replace(/```json|```/g,"").trim()).questions;
     renderQuestions();
     document.getElementById("app-setup").classList.add("hidden");
     document.getElementById("app-interview").classList.remove("hidden");
     const badge = document.getElementById("session-info");
-    badge.textContent = "Free session used — upgrade for more";
+    if (!result.is_pro) badge.textContent = "Free session used — upgrade for more";
   } catch(e) { if (e.message !== "free_limit_reached") showErr("setup-error", e.message || "Something went wrong."); }
   toggleLoad("setup-loading", false);
 }
@@ -464,15 +467,42 @@ async function getFeedback(qid) {
   const q = questions.find(x => x.id === qid);
   toggleLoad(`fb-load-${qid}`, true);
   try {
-    const raw = await callAI(
-      `You are an interview coach. Return ONLY valid JSON: {"score":"high|mid|low","strong":"one sentence","improve":"one suggestion","rewritten":"better version 1-2 sentences"}`,
-      `Question: ${q.text}\nAnswer: ${ans}`
-    );
-    const fb = JSON.parse(raw.replace(/```json|```/g,"").trim());
-    feedbacks[qid] = fb; answers[qid] = ans;
-    const sc = fb.score === "high" ? "score-high" : fb.score === "mid" ? "score-mid" : "score-low";
-    const sl = fb.score === "high" ? "Strong answer" : fb.score === "mid" ? "Good start" : "Needs work";
-    document.getElementById(`fb-${qid}`).innerHTML = `<div style="margin-top:10px;"><span class="score-badge ${sc}">${sl}</span></div><div class="fb-box fb-good" style="margin-top:8px;"><strong>What worked:</strong> ${fb.strong}</div><div class="fb-box fb-improve" style="margin-top:6px;"><strong>Improve:</strong> ${fb.improve}</div><div class="fb-box fb-neutral" style="margin-top:6px;"><strong>Better version:</strong> ${fb.rewritten}</div>`;
+    let systemPrompt, result2, fb, html;
+    if (userIsPro) {
+      systemPrompt = `You are an expert interview coach. Return ONLY valid JSON, no markdown: {"score":"high|mid|low","strong":"2-3 sentences on specific strengths with examples from their answer","improve":"2-3 concrete suggestions with specific language to use","rewritten":"a full polished answer in 4-6 sentences using the STAR method","starBreakdown":{"situation":"what situation context they should set","task":"what task/challenge to mention","action":"specific actions to highlight","result":"what results/impact to emphasize"},"keywordsToAdd":"3-4 industry keywords they should include"}`;
+      result2 = await callAI(systemPrompt, `Question: ${q.text}
+Answer: ${ans}`);
+      fb = JSON.parse(result2.text.replace(/```json|```/g,"").trim());
+      feedbacks[qid] = fb; answers[qid] = ans;
+      const sc = fb.score === "high" ? "score-high" : fb.score === "mid" ? "score-mid" : "score-low";
+      const sl = fb.score === "high" ? "Strong answer" : fb.score === "mid" ? "Good start" : "Needs work";
+      html = `<div style="margin-top:10px;"><span class="score-badge ${sc}">${sl}</span><span style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;background:#fdf0e7;color:#c05c1a;margin-left:8px;">Pro feedback</span></div>
+        <div class="fb-box fb-good" style="margin-top:8px;"><strong>What worked:</strong> ${fb.strong}</div>
+        <div class="fb-box fb-improve" style="margin-top:6px;"><strong>Improve this:</strong> ${fb.improve}</div>
+        <div class="fb-box fb-neutral" style="margin-top:6px;"><strong>Polished answer (STAR):</strong><br>${fb.rewritten}</div>
+        <div class="fb-box" style="margin-top:6px;background:#e8f0ec;border-left:3px solid #2a5c45;border-radius:0;padding:10px 14px;font-size:13px;">
+          <strong style="color:#1e4a35;">STAR breakdown:</strong><br>
+          <span style="color:#2a5c45;">S:</span> ${fb.starBreakdown?.situation || ""}<br>
+          <span style="color:#2a5c45;">T:</span> ${fb.starBreakdown?.task || ""}<br>
+          <span style="color:#2a5c45;">A:</span> ${fb.starBreakdown?.action || ""}<br>
+          <span style="color:#2a5c45;">R:</span> ${fb.starBreakdown?.result || ""}
+        </div>
+        <div style="margin-top:6px;font-size:12px;color:var(--ink-faint);">Keywords to add: <strong style="color:var(--ink-muted)">${fb.keywordsToAdd || ""}</strong></div>`;
+    } else {
+      systemPrompt = `You are an interview coach. Return ONLY valid JSON, no markdown: {"score":"high|mid|low","strong":"one sentence","improve":"one suggestion","rewritten":"better version in 1-2 sentences"}`;
+      result2 = await callAI(systemPrompt, `Question: ${q.text}
+Answer: ${ans}`);
+      fb = JSON.parse(result2.text.replace(/```json|```/g,"").trim());
+      feedbacks[qid] = fb; answers[qid] = ans;
+      const sc = fb.score === "high" ? "score-high" : fb.score === "mid" ? "score-mid" : "score-low";
+      const sl = fb.score === "high" ? "Strong answer" : fb.score === "mid" ? "Good start" : "Needs work";
+      html = `<div style="margin-top:10px;"><span class="score-badge ${sc}">${sl}</span></div>
+        <div class="fb-box fb-good" style="margin-top:8px;"><strong>What worked:</strong> ${fb.strong}</div>
+        <div class="fb-box fb-improve" style="margin-top:6px;"><strong>Improve:</strong> ${fb.improve}</div>
+        <div class="fb-box fb-neutral" style="margin-top:6px;"><strong>Better version:</strong> ${fb.rewritten}</div>
+        <div style="margin-top:8px;padding:10px 14px;border-radius:8px;background:#fdf0e7;font-size:12px;color:#8a3f10;">Upgrade to Pro for STAR method breakdown, detailed rewrites, and keyword suggestions</div>`;
+    }
+    document.getElementById(`fb-${qid}`).innerHTML = html;
   } catch(e) {}
   toggleLoad(`fb-load-${qid}`, false); updateProgress();
 }
@@ -488,11 +518,11 @@ async function getOverallFeedback() {
   toggleLoad("summary-loading", true);
   try {
     const blob = Object.entries(answers).map(([id,a]) => { const q = questions.find(x => x.id == id); return `Q: ${q.text}\nA: ${a}\nScore: ${feedbacks[id]?.score||"unrated"}`; }).join("\n\n");
-    const raw = await callAI(
+    const result3 = await callAI(
       `You are an interview coach. Return ONLY valid JSON: {"overallScore":"X/10","headline":"one encouraging sentence","topStrength":"...","topGap":"...","nextStep":"one specific action"}`,
       `Evaluate this mock interview:\n\n${blob}`
     );
-    const d = JSON.parse(raw.replace(/```json|```/g,"").trim());
+    const d = JSON.parse(result3.text.replace(/```json|```/g,"").trim());
     document.getElementById("score-total").textContent = d.overallScore;
     document.getElementById("summary-feedback").innerHTML = `<p style="font-weight:500;margin-bottom:12px;">${d.headline}</p><div class="fb-box fb-good" style="margin-bottom:8px;"><strong>Top strength:</strong> ${d.topStrength}</div><div class="fb-box fb-improve" style="margin-bottom:8px;"><strong>Key gap:</strong> ${d.topGap}</div><div class="fb-box fb-neutral"><strong>Next step:</strong> ${d.nextStep}</div>`;
   } catch(e) { document.getElementById("summary-feedback").textContent = "Could not generate summary."; }
