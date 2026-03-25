@@ -62,7 +62,7 @@ app.post("/api/chat", async (req, res) => {
       await supabase.from("profiles").update({ sessions_used: profile.sessions_used + 1 }).eq("id", user.id);
     }
 
-    res.json({ text: data.choices[0].message.content });
+    res.json({ text: data.choices[0].message.content, is_pro: profile.is_pro });
   } catch (err) {
     res.status(500).json({ error: "Server error: " + err.message });
   }
